@@ -1,3 +1,3 @@
 package samples
 
-function BodylessFunction()
+func BodylessFunction()
