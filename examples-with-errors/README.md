@@ -1,4 +1,4 @@
-Descrição dos erros
+DESCRIÇÃO DOS ERROS
 
 - function.go
 Erro léxico (palavra reservada errada)
