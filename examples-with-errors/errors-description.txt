@@ -1,0 +1,5 @@
+- function.go
+Erro léxico (palavra reservada errada)
+
+- arrayDecls.go
+Erro sintático (variável com palavra reservada)
