@@ -6,7 +6,7 @@ ANTLR_PATH=/usr/local/lib/antlr-4.9.2-complete.jar
 CLASS_PATH_OPTION=-cp .:$(ANTLR_PATH)
 
 ANTLR4=$(JAVA) -jar $(ANTLR_PATH)
-GRUN=$(JAVA)
+GRUN=java org.antlr.v4.gui.TestRig
 
 GEN_PATH=src/lexer
 
@@ -20,7 +20,7 @@ javac:
 	javac -cp /usr/local/lib/antlr-4.9.2-complete.jar *.java 
 
 run:
-	alias grun='java org.antlr.v4.gui.TestRig' && grun go sourceFile anonymousMethods.go -gui
+	$(GRUN) Go sourceFile ../tests/examples/anonymousMethods.go -gui
 
 baixe:
 	wget https://raw.githubusercontent.com/antlr/grammars-v4/master/golang/Java/GoParserBase.java  
