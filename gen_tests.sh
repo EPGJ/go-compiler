@@ -1,14 +1,5 @@
 #!/bin/bash
 
-DATA=/home/zambon/Teaching/$YEAR/CC/labs/tests
-IN=$DATA/in
-OUT=$DATA/out02
-
-EXE=./lab02
-
-
-for infile in `ls $IN/*.ezl`; do
-    base=$(basename $infile)
-    outfile=$OUT/${base/.ezl/.out}
-    $EXE < $infile > $outfile
+for infile in `ls tests/in/*.go`; do
+    make run FILE=../../$infile 
 done

@@ -13,7 +13,7 @@ GRUN=java org.antlr.v4.gui.TestRig
 GEN_PATH=lexer
 
 DATA=$(ROOT)/tests
-IN=$(DATA)/in
+IN=$(DATA)/in        
 
 all: antlr javac 
 	@echo "Done."
@@ -27,13 +27,13 @@ javac:
 run:
 	cd src/$(GEN_PATH) && $(GRUN) Go sourceFile $(FILE) -gui
 
-runall:
-	-for FILE in $(IN); do \
-		cd src/$(GEN_PATH) && \
-		echo -e "\Running $${FILE}" && \
-		$(GRUN) Go sourceFile $${FILE} -gui && \
-		cd ../.. ; \
-	done;
+#runall:
+#	-for FILE in $(IN)/*.go; do \
+#		cd src/$(GEN_PATH) && \
+#		echo -e "\Running $${FILE}" && \
+#		$(GRUN) Go sourceFile $${FILE} -gui && \
+#		cd ../.. ; \
+#	done;
 
 clean: 
 	find src/lexer -type f -not -name 'GoParserBase.java' -print0 | xargs -0  -I {} rm -v {}
