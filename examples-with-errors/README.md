@@ -1,13 +1,9 @@
-DESCRIÇÃO DOS ERROS
+### DESCRIÇÃO DOS ERROS
 
-- function.go
-Erro léxico (palavra reservada errada)
+- **function.go** - erro léxico (palavra reservada errada)
 
-- imports.go
-Erro léxico (comentário aberto e não fechado)
+- **imports.go** - erro léxico (comentário aberto e não fechado)
 
-- arrayDecls.go
-Erro sintático (variável com palavra reservada)
+- **arrayDecls.go** - erro sintático (variável com palavra reservada)
 
-- anonymousMethods.go
-Erro sintático (parenteses que não são fechados)
+- **anonymousMethods.go** - erro sintático (parenteses que não são fechados)
