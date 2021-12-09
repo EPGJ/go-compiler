@@ -2,6 +2,8 @@
 JAVA=java
 JAVAC=javac
 
+ROOT=~/projects/ufes/compilers/go-compiler
+
 ANTLR_PATH=/usr/local/lib/antlr-4.9.2-complete.jar
 CLASS_PATH_OPTION=-cp .:$(ANTLR_PATH)
 
@@ -9,6 +11,9 @@ ANTLR4=$(JAVA) -jar $(ANTLR_PATH)
 GRUN=java org.antlr.v4.gui.TestRig
 
 GEN_PATH=lexer
+
+DATA=$(ROOT)/tests
+IN=$(DATA)/in
 
 all: antlr javac 
 	@echo "Done."
@@ -22,8 +27,13 @@ javac:
 run:
 	cd src/$(GEN_PATH) && $(GRUN) Go sourceFile $(FILE) -gui
 
-baixe:
-	cd src && wget https://raw.githubusercontent.com/antlr/grammars-v4/master/golang/Java/GoParserBase.java  
+runall:
+	-for FILE in $(IN); do \
+		cd src/$(GEN_PATH) && \
+		echo -e "\Running $${FILE}" && \
+		$(GRUN) Go sourceFile $${FILE} -gui && \
+		cd ../.. ; \
+	done;
 
 clean: 
 	find src/lexer -type f -not -name 'GoParserBase.java' -print0 | xargs -0  -I {} rm -v {}
