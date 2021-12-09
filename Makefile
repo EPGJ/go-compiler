@@ -20,7 +20,7 @@ javac:
 	cd src && $(JAVAC) $(CLASS_PATH_OPTION) $(GEN_PATH)/*.java  
 
 run:
-	cd src/$(GEN_PATH) && $(GRUN) Go sourceFile ../../tests/examples/anonymousMethods.go -gui
+	cd src/$(GEN_PATH) && $(GRUN) Go sourceFile $(FILE) -gui
 
 baixe:
 	cd src && wget https://raw.githubusercontent.com/antlr/grammars-v4/master/golang/Java/GoParserBase.java  
