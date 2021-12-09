@@ -7,3 +7,5 @@
 - *arrayDecls.go* - erro sintático (variável com palavra reservada)
 
 - *anonymousMethods.go* - erro sintático (parenteses que não são fechados)
+
+- *hello1.go* - erro sintático (chaves não fechadas)
