@@ -1,7 +1,26 @@
-# go-compiler
-
+```
+Altere a variável `ROOT` do Makefile para o endereço do repositório clonado.
+Altere a variável `ANTLR_PATH` para o path do Antlr no seu computador.
+Compile o código: 
+```sh
 make
+```
 
-make run FILE=../../tests/examples/anonymousMethods.go
+Para rodar um teste específico digite o comando `make run FILE=tests/[PASTA-DE-TESTES]/[ARQUIVO-DE-TESTES]` por exemplo:
+```sh
+make run FILE=tests/no-errors/anonymousMethods.go
+```
+Para executar todos os testes por vez, basta executar o seguinte comando
+```sh
+./gen_tests.sh
+```
+É válido resaltar que o script acima testa apenas a pasta com testes corretos. Para alterar a pasta de testes, basta mudar aterar a variável `FOLDER` para a pasta desejada.
 
-make clean
+Por fim, o comando `make clean` limpará todos os arquivos gerados dentro da pasra `src/lexer`.
+
+
+## License
+
+MIT
+
+**Free Software, Hell Yeah!**

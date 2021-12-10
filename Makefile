@@ -25,7 +25,7 @@ javac:
 	cd src && $(JAVAC) $(CLASS_PATH_OPTION) $(GEN_PATH)/*.java  
 
 run:
-	cd src/$(GEN_PATH) && $(GRUN) Go sourceFile $(FILE) -gui
+	cd src/$(GEN_PATH) && $(GRUN) Go sourceFile ../../$(FILE) -gui
 
 #runall:
 #	-for FILE in $(IN)/*.go; do \

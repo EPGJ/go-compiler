@@ -1,5 +1,7 @@
 #!/bin/bash
 
-for infile in `ls tests/in/*.go`; do
-    make run FILE=../../$infile 
+FOLDER=no-errors
+
+for infile in `ls tests/$FOLDER/*.go`; do
+    make run FILE=$infile 
 done
