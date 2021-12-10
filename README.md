@@ -1,3 +1,12 @@
+# Go compiler
+## Analisador Léxico e sintático
+
+Para compilar siga os seguintes passos:
+
+Clone o projeto: 
+
+ ```sh
+ git clone https://github.com/EPGJ/go-compiler.git
 ```
 Altere a variável `ROOT` do Makefile para o endereço do repositório clonado.
 Altere a variável `ANTLR_PATH` para o path do Antlr no seu computador.
