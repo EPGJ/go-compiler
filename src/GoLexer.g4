@@ -36,6 +36,12 @@
 
 lexer grammar GoLexer;
 
+
+@header {
+    package parser;
+}
+
+
 // Keywords
 
 BREAK                  : 'break';

@@ -33,6 +33,11 @@ options {
 	superClass = GoParserBase;
 }
 
+@header {
+    package parser;
+}
+
+
 sourceFile:
 	packageClause eos (importDecl eos)* (
 		(functionDecl | methodDecl | declaration) eos

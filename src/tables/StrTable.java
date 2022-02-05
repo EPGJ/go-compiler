@@ -1,33 +1,26 @@
 package tables;
 
-import java.util.ArrayList;
+import java.util.Map;
+import java.util.HashMap;
 import java.util.Formatter;
 
-// @SuppressWarnings("serial")
-// private  Map<Integer, Entry> table = new HashMap<>();
-public final class StrTable extends HashMap<Integer,String>{
+public final class StrTable extends HashMap<String,String>{
 
-    // No mundo real isto certamente deveria ser um hash...
 
-    @Override
-    public boolean add(String s) {
-		for (int i = 0; i < this.size(); i++) {
-			if (this.get(i).equals(s)) {
-				return false;
-			}
-		}
-		return super.add(s);
+    public String add(String s) {
+		return super.put(s,s);
 	}
 
 	public String toString() {
 		StringBuilder sb = new StringBuilder();
 		Formatter f = new Formatter(sb);
 		f.format("Strings table:\n");
-		for (int i = 0; i < this.size(); i++) {
-			f.format("Entry %d -- %s\n", i, this.get(i));
+		for(Map.Entry m:this.entrySet()){
+			f.format("Entry %s", m.getValue());
 		}
 		f.close();
 		return sb.toString();
 	}
 
 }
+
