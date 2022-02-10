@@ -14,10 +14,19 @@ public class SemanticChecker extends GoParserBaseVisitor<Void> {
 
 	private StrTable st = new StrTable();   // Tabela de strings.
     private VarTable vt = new VarTable();   // Tabela de variáveis.
+	private FuncTable ft = new FuncTable(); // Table de funcoes.
     
     Type lastDeclType;  // Variável "global" com o último tipo declarado.
+	Type lastDeclFuncType; // Global variable with the last declared func type 
+	// int lastDeclArgsSize; // Global variable with the last declared argsSize 
     
     private boolean passed = true;
+
+	/*
+	*
+	* CRIAÇÃO E VERIFICAÇÃO DE VARIÁVEIS
+	*
+	*/
 
     // Testa se o dado token foi declarado antes.
     void checkVar(Token token) {
@@ -48,6 +57,45 @@ public class SemanticChecker extends GoParserBaseVisitor<Void> {
         vt.addVar(text, line, lastDeclType);
     }
     
+	/*
+	*
+	* CRIAÇÃO E VERIFICAÇÃO DE FUNÇÕES
+	*
+	*/
+
+
+	// Testa se a função foi declarada antes.
+	Type checkFunc(Token token) {
+		String text = token.getText();
+		int line = token.getLine();
+		boolean isInTable = ft.lookupFunc(text);
+		if (!isInTable) {
+			System.err.printf("SEMANTIC ERROR (%d): function '%s' was not declared.\n", line, text);
+			passed = false;
+			return Type.NO_TYPE;
+		}
+		return ft.getType(text);
+	}
+
+	// Creates a new function from token
+	void newFunc(Token token, int argsSize) {
+		String text = token.getText();
+		int line = token.getLine();
+		boolean isInTable = ft.lookupFunc(text);
+		if (!isInTable) {
+			System.err.printf("SEMANTIC ERROR (%d): function '%s' already declared at line %d.\n",
+				line, text, ft.getLine(text)
+			);
+			passed = false;
+			return;
+		}
+		ft.addFunc(text, line, lastDeclFuncType, argsSize);
+	}
+
+
+
+
+
     // Retorna true se os testes passaram.
     boolean hasPassed() {
     	return passed;
@@ -61,6 +109,8 @@ public class SemanticChecker extends GoParserBaseVisitor<Void> {
     	System.out.print(vt);
     	System.out.print("\n\n");
     }
+
+
     
     // Visita a regra type_spec: BOOL
     // Note que esse método só foi criado pelo ANTLR porque a regra da
