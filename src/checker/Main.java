@@ -45,7 +45,7 @@ public class Main {
 		// Saída final.
 		if (checker.hasPassed()) {
 			System.out.println("PARSE SUCCESSFUL!");
-			// checker.printTables();
+			checker.printTables();
 		}
 	}
 

@@ -9,111 +9,70 @@ import tables.StrTable;
 import tables.VarTable;
 import typing.Type;
 
-// import org.antlr.v4.runtime.Token;
 
-// import parser.GoParser;
-// import parser.GoParser.Assign_stmtContext;
-// import parser.GoParser.ExprIdContext;
-// import parser.GoParser.ExprStrValContext;
-// import parser.GoParser.Read_stmtContext;
-// import parser.GoParserBaseVisitor;
-// import tables.StrTable;
-// import tables.VarTable;
-// import typing.Type;
-
-/*
- * Analisador semântico de EZLang implementado como um visitor
- * da ParseTree do ANTLR. A classe GoParserBaseVisitor é gerada
- * automaticamente e já possui métodos padrão aonde o comportamento
- * é só visitar todos os filhos. Por conta disto, basta sobreescrever
- * os métodos que a gente quer alterar.
- * 
- * Por enquanto só há uma verificação simples de declaração de
- * variáveis usando uma tabela de símbolos. Funcionalidades adicionais
- * como análise de tipos serão incluídas no próximo laboratório.
- * 
- * O tipo Void indicado na super classe define o valor de retorno dos
- * métodos do visitador. Depois vamos alterar isso para poder construir
- * a AST.
- * 
- * Lembre que em um 'visitor' você é responsável por definir o
- * caminhamento nos filhos de um nó da ParseTree através da chamada
- * recursiva da função 'visit'. Ao contrário do 'listener' que
- * caminha automaticamente em profundidade pela ParseTree, se
- * você não chamar 'visit' nos métodos de visitação, o caminhamento
- * para no nó que você estiver, deixando toda a subárvore do nó atual
- * sem visitar. Tome cuidado neste ponto pois isto é uma fonte
- * muito comum de erros. Veja o método visitAssign_stmt abaixo para
- * ter um exemplo.
- */
 public class SemanticChecker extends GoParserBaseVisitor<Void> {
 
-	// private StrTable st = new StrTable();   // Tabela de strings.
-    // private VarTable vt = new VarTable();   // Tabela de variáveis.
+	private StrTable st = new StrTable();   // Tabela de strings.
+    private VarTable vt = new VarTable();   // Tabela de variáveis.
     
-    // Type lastDeclType;  // Variável "global" com o último tipo declarado.
+    Type lastDeclType;  // Variável "global" com o último tipo declarado.
     
     private boolean passed = true;
 
-	boolean hasPassed() {
-		return passed;
-	}
-
-
-    // // Testa se o dado token foi declarado antes.
-    // void checkVar(Token token) {
-    // 	String text = token.getText();
-    // 	int line = token.getLine();
-   	// 	boolean isInTable = vt.lookupVar(text);
-    // 	if (!isInTable) {
-    // 		System.err.printf(
-    // 			"SEMANTIC ERROR (%d): variable '%s' was not declared.\n",
-	// 			line, text);
-    // 		passed = false;
-    //         return;
-    //     }
-    // }
+    // Testa se o dado token foi declarado antes.
+    void checkVar(Token token) {
+    	String text = token.getText();
+    	int line = token.getLine();
+   		boolean isInTable = vt.lookupVar(text);
+    	if (!isInTable) {
+    		System.err.printf(
+    			"SEMANTIC ERROR (%d): variable '%s' was not declared.\n",
+				line, text);
+    		passed = false;
+            return;
+        }
+    }
     
-    // // Cria uma nova variável a partir do dado token.
-    // void newVar(Token token) {
-    // 	String text = token.getText();
-    // 	int line = token.getLine();
-   	// 	boolean isInTable = vt.lookupVar(text);
-    // 	if (!isInTable) {
-    //     	System.err.printf(
-    // 			"SEMANTIC ERROR (%d): variable '%s' already declared at line %d.\n",
-    //             line, text, vt.getLine(text));
-    //     	passed = false;
-    //         return;
-    //     }
-    //     vt.addVar(text, line, lastDeclType);
-    // }
+    // Cria uma nova variável a partir do dado token.
+    void newVar(Token token) {
+    	String text = token.getText();
+    	int line = token.getLine();
+   		boolean isInTable = vt.lookupVar(text);
+    	if (!isInTable) {
+        	System.err.printf(
+    			"SEMANTIC ERROR (%d): variable '%s' already declared at line %d.\n",
+                line, text, vt.getLine(text));
+        	passed = false;
+            return;
+        }
+        vt.addVar(text, line, lastDeclType);
+    }
     
-    // // Retorna true se os testes passaram.
-    // boolean hasPassed() {
-    // 	return passed;
-    // }
+    // Retorna true se os testes passaram.
+    boolean hasPassed() {
+    	return passed;
+    }
     
-    // // Exibe o conteúdo das tabelas em stdout.
-    // void printTables() {
-    //     System.out.print("\n\n");
-    //     System.out.print(st);
-    //     System.out.print("\n\n");
-    // 	System.out.print(vt);
-    // 	System.out.print("\n\n");
-    // }
+    // Exibe o conteúdo das tabelas em stdout.
+    void printTables() {
+        System.out.print("\n\n");
+        System.out.print(st);
+        System.out.print("\n\n");
+    	System.out.print(vt);
+    	System.out.print("\n\n");
+    }
     
-    // // Visita a regra type_spec: BOOL
-    // // Note que esse método só foi criado pelo ANTLR porque a regra da
-    // // linha 29 de GoParser.g foi marcada com o identificador # boolType.
-    // // O mesmo vale para as demais regras de type_spec.
-    // @Override
-    // public Void visitBoolType(GoParser.BoolTypeContext ctx) {
-    // 	this.lastDeclType = Type.BOOL_TYPE;
-    // 	return null; // Java says must return something even when Void
-    // }
+    // Visita a regra type_spec: BOOL
+    // Note que esse método só foi criado pelo ANTLR porque a regra da
+    // linha 29 de GoParser.g foi marcada com o identificador # boolType.
+    // O mesmo vale para as demais regras de type_spec.
+    @Override
+    public Void visitBoolType(GoParser.BoolTypeContext ctx) {
+    	this.lastDeclType = Type.BOOL_TYPE;
+    	return null; // Java says must return something even when Void
+    }
 	
-    // // Visita a regra type_spec: INT
+    // Visita a regra type_spec: INT
 	// @Override
 	// public Void visitIntType(GoParser.IntTypeContext ctx) {
 	// 	this.lastDeclType = Type.INT_TYPE;
