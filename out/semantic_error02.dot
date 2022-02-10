@@ -1,0 +1,1 @@
+SEMANTIC ERROR (5): Return statement type incompatible with function type. Expected 'string' but received 'bool'.

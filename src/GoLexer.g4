@@ -37,10 +37,6 @@
 lexer grammar GoLexer;
 
 
-@header {
-    package parser;
-}
-
 
 // Keywords
 
@@ -69,10 +65,31 @@ FOR                    : 'for';
 IMPORT                 : 'import';
 RETURN                 : 'return';
 VAR                    : 'var';
+INT                    : 'int';
+STRING                 : 'string';
+BOOL                   : 'bool';
+FLOAT32                : 'float32';
 
 NIL_LIT                : 'nil';
 
+BOOLEAN_LIT            : TRUE | FALSE;
+
+TRUE                   : 'true';
+FALSE                  : 'false';
+
+
+MAIN                   : 'main';
+
 IDENTIFIER             : LETTER (LETTER | UNICODE_DIGIT)*;
+
+// input-output
+
+INPUT                  :FMT DOT SCANLN;
+OUTPUT                 :FMT DOT PRINTLN;
+
+FMT                    :'fmt';    
+PRINTLN                :'Println';
+SCANLN                 :'Scanln';
 
 // Punctuation
 
@@ -105,6 +122,8 @@ LESS                   : '<';
 LESS_OR_EQUALS         : '<=';
 GREATER                : '>';
 GREATER_OR_EQUALS      : '>=';
+PLUS_ASSIGN            : '+=';
+MINUS_ASSIGN           : '-=';
 
 // Arithmetic operators
 
