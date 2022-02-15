@@ -255,8 +255,7 @@ public class SemanticChecker extends GoParserBaseVisitor<Type> {
 		return Type.NO_TYPE;
 	}
 
-	// Visita a regra var_declaration: VAR IDENTIFIER (var_types | var_types? ASSIGN
-	// expression | array_declaration) SEMI?
+	// Visita a regra var_declaration: VAR IDENTIFIER (var_types | var_types? ASSIGN expression | array_declaration) SEMI?
 	@Override
 	public Type visitVar_declaration(GoParser.Var_declarationContext ctx) {
 		// Checa se a variável é um array ou uma variável normal
@@ -292,8 +291,7 @@ public class SemanticChecker extends GoParserBaseVisitor<Type> {
 		return Type.NO_TYPE;
 	}
 
-	// Visita a regra declare_assign: IDENTIFIER DECLARE_ASSIGN ( array_init |
-	// expression) SEMI?
+	// Visita a regra declare_assign: IDENTIFIER DECLARE_ASSIGN ( array_init |  expression) SEMI?
 	@Override
 	public Type visitDeclare_assign(GoParser.Declare_assignContext ctx) {
 		Token identifierToken = ctx.IDENTIFIER().getSymbol();
@@ -450,8 +448,7 @@ public class SemanticChecker extends GoParserBaseVisitor<Type> {
 	 *
 	 */
 
-	// Visita a regra statement_section: L_CURLY statement* return_statement?
-	// R_CURLY
+	// Visita a regra statement_section: L_CURLY statement* return_statement? R_CURLY
 	@Override
 	public Type visitStatement_section(GoParser.Statement_sectionContext ctx) {
 		// Visita cada statement para checar erros
@@ -501,6 +498,295 @@ public class SemanticChecker extends GoParserBaseVisitor<Type> {
 		return Type.NO_TYPE;
 	}
 
+
+
+	// Visita a regra for_statement: FOR expression? statement_section
+	@Override
+	public Type visitWhile(GoParser.WhileContext ctx) {
+		// Verifica se existe uma expression
+		if (ctx.expression() != null) {
+			Type expressionType = visit(ctx.expression());
+
+			// Verifica se a expressão tem o tipo booleano
+			checkBoolExpr(ctx.FOR().getSymbol().getLine(), "for", expressionType);
+		}
+
+		// Visita recursivamente statement_section para checar erros
+		visit(ctx.statement_section());
+
+		return Type.NO_TYPE;
+	}
+
 	
+	// Visita a regra or_statement: FOR declare_assign SEMI expression SEMI assign_statement statement_section
+	@Override
+	public Type visitFor(GoParser.ForContext ctx) {
+		// Visita a regra recursivamente para checar erros
+		visit(ctx.declare_assign());
+
+		Type expressionType = visit(ctx.expression());
+
+		// Verifica se a expressão possui o tipo booleano
+		checkBoolExpr(ctx.FOR().getSymbol().getLine(), "for", expressionType);
+
+		// Visita a regra recursivamente para verificar erros
+		visit(ctx.assign_statement());
+		visit(ctx.statement_section());
+
+		return Type.NO_TYPE;
+	}
+
+
+	// Visita a regra assign_statement: id op=(ASSIGN | MINUS_ASSIGN | PLUS_ASSIGN) expression SEMI?
+	@Override
+	public Type visitAssignExpression(GoParser.AssignExpressionContext ctx) {
+		Type expressionType = visit(ctx.expression());
+
+		// Verifica se a variável foi previamente declarada
+		Type identifierType = visit(ctx.id());
+
+		Token identifierToken = ctx.id().IDENTIFIER().getSymbol();
+
+		// Verifica se a operação de atribuição é suportada
+		checkAssign(identifierToken.getLine(), ctx.op.getText(), identifierType, expressionType);
+
+		return Type.NO_TYPE;
+	}
+
+	// Visita a regra assign_statement: IDENTIFIER op=(PLUS_PLUS | MINUS_MINUS) SEMI?
+	@Override
+	public Type visitAssignPPMM(GoParser.AssignPPMMContext ctx) {
+		// Verifica se a variavel já foi declarada
+		Type identifierType = visit(ctx.id());
+
+		Token identifierToken = ctx.id().IDENTIFIER().getSymbol();
+
+		// Verifica se a operação é suportada
+		checkUnaryOp(identifierToken.getLine(), ctx.op.getText(), identifierType);
+
+		return Type.NO_TYPE;
+	}
+
+	
+	// Visita a regra switch_statement: SWITCH id? L_CURLY case_statement R_CURLY
+	@Override
+	public Type visitSwitch_statement(GoParser.Switch_statementContext ctx) {
+		if (ctx.id() != null)
+			visit(ctx.id());
+		if (ctx.func_call() != null)
+			visit(ctx.func_call());
+
+		visit(ctx.case_statement());
+
+		return Type.NO_TYPE;
+	}
+
+	// Visita a regra case_statement: (CASE expression COLON statement*)* (DEFAULT COLON statement*)?
+	@Override
+	public Type visitCase_statement(GoParser.Case_statementContext ctx) {
+
+		GoParser.Switch_statementContext parent = (GoParser.Switch_statementContext) ctx.parent;
+
+		if (parent == null) {
+			System.out.println("Case statement has no parent node. Exiting...");
+			System.exit(1);
+		}
+
+		// Tipo default para a case expression nada está sendo avalidado
+		Type caseType = Type.BOOL_TYPE;
+
+
+		if (parent.id() != null)
+			caseType = visit(parent.id());
+		if (parent.func_call() != null)
+			caseType = visit(parent.func_call());
+
+		// Visita recursivamente cada expression para cada caso para lidar com erros
+		for (int i = 0; i < ctx.expression().size(); i++) {
+			// Pega a tipo atual da expression
+			Type expressionType = visit(ctx.expression(i));
+
+			// Verifica se o tipo da expressão combina com o tipo do case
+			checkCase(ctx.CASE().get(i).getSymbol().getLine(), caseType, expressionType);
+		}
+
+
+		// Visita recursivamente cada statement para checar erros
+		for (GoParser.StatementContext stmt : ctx.statement()) {
+			visit(stmt);
+		}
+
+		// Visita a regra recursivamente para checar erros
+		if (ctx.default_statement() != null) {
+			visit(ctx.default_statement());
+		}
+
+		return Type.NO_TYPE;
+	}
+
+	// Visita a regra func_call: IDENTIFIER L_PAREN expression_list? R_PAREN
+	@Override
+	public Type visitFunc_call(GoParser.Func_callContext ctx) {
+		Token funcToken = ctx.IDENTIFIER().getSymbol();
+
+		// Verifica se a função já foi declarada
+		Type funcType = checkFunc(funcToken);
+
+		// Verifica se  a função possui parâmetros
+		if (ctx.expression_list() != null) {
+			// Visita a regra recursivamente para checar erros
+			visit(ctx.expression_list());
+		} else {
+			lastExpressionListSize = 0;
+		}
+
+		// Verifica se ListSize possui o mesmo tamanho do que o esperado pela função
+		checkFuncCall(funcToken);
+
+		return funcType;
+	}
+
+	// Visita a regra expression_list: expression (COMMA expression)*
+	@Override
+	public Type visitExpression_list(GoParser.Expression_listContext ctx) {
+		lastExpressionListSize = ctx.expression().size();
+
+		// Visita recursivamente cada expression para checar erros
+		for (GoParser.ExpressionContext expr : ctx.expression()) {
+			visit(expr);
+		}
+
+		return Type.NO_TYPE;
+	}
+
+	/*
+	 *
+	 * Expression rules
+	 *
+	 */
+	// Visita a regra expression: expression op=(STAR | DIV | MOD) expression
+	@Override
+	public Type visitStarDivMod(GoParser.StarDivModContext ctx) {
+		// Visita os operandos para checar seus tipos
+		Type l = visit(ctx.expression(0));
+		Type r = visit(ctx.expression(1));
+
+		// Unifica os tipos dos operandos
+		Type unif = l.unifyMathOps(r);
+
+		// Operação não suportada
+		if (unif == Type.NO_TYPE) {
+			typeError(ctx.op.getLine(), ctx.op.getText(), l, r);
+		}
+
+		return unif;
+	}
+
+	// Visita a regra expression: expression op=(PLUS | MINUS) expression
+	@Override
+	public Type visitPlusMinus(GoParser.PlusMinusContext ctx) {
+		// Visita os operandos para checar seus tipos
+		Type l = visit(ctx.expression(0));
+		Type r = visit(ctx.expression(1));
+
+		// Unifica os tipos dos operandos
+		Type unif = l.unifyMathOps(r);
+
+		// Operação não suportada
+		if (unif == Type.NO_TYPE) {
+			typeError(ctx.op.getLine(), ctx.op.getText(), l, r);
+		}
+
+		return unif;
+	}
+
+	// Visita a regra expression: expression op=( EQUALS | NOT_EQUALS | LESS | LESS_OR_EQUALS | GREATER | GREATER_OR_EQUALS) expression
+	@Override
+	public Type visitRelationalOperators(GoParser.RelationalOperatorsContext ctx) {
+		// Visita os operandos para checar seus tipos
+		Type l = visit(ctx.expression(0));
+		Type r = visit(ctx.expression(1));
+
+		// Unifica os tipos dos operandos
+		Type unif;
+		if (ctx.op.getType() == GoParser.EQUALS || ctx.op.getType() == GoParser.NOT_EQUALS) {
+			unif = l.unifyCompare(r);
+		} else {
+			unif = l.unifyCompare2(r);
+		}
+
+		// Operação não suportada
+		if (unif == Type.NO_TYPE) {
+			typeError(ctx.op.getLine(), ctx.op.getText(), l, r);
+		}
+
+		return unif;
+	}
+
+	// Visita a regra expression: L_PAREN expression R_PAREN
+	@Override
+	public Type visitExpressionParen(GoParser.ExpressionParenContext ctx) {
+		return visit(ctx.expression());
+	}
+
+	// Visita a regra expression: id
+	@Override
+	public Type visitExpressionId(GoParser.ExpressionIdContext ctx) {
+		return visit(ctx.id());
+	}
+
+	// Visita a regra expression: func_call
+	@Override
+	public Type visitExpressionFuncCall(GoParser.ExpressionFuncCallContext ctx) {
+		return visit(ctx.func_call());
+	}
+
+	// Visita a regra expression: DECIMAL_LIT
+	@Override
+	public Type visitIntVal(GoParser.IntValContext ctx) {
+		return Type.INT_TYPE;
+	}
+
+	// Visita a regra expression: FLOAT_LIT
+	@Override
+	public Type visitFloatVal(GoParser.FloatValContext ctx) {
+		return Type.FLOAT32_TYPE;
+	}
+
+	// Visita a regra expression: INTERPRETED_STRING_LIT
+	@Override
+	public Type visitStringVal(GoParser.StringValContext ctx) {
+		// Adiciona a string na tabela de strings
+		st.add(ctx.INTERPRETED_STRING_LIT().getText());
+		return Type.STR_TYPE;
+	}
+
+	// Visita a regra expression: BOOLEAN_LIT
+	@Override
+	public Type visitBoolVal(GoParser.BoolValContext ctx) {
+		return Type.BOOL_TYPE;
+	}
+
+	/*
+	 *
+	 * Id 
+	 *
+	 */
+
+	// Visita a regra id: IDENTIFIER (L_BRACKET expression R_BRACKET)?
+	@Override
+	public Type visitId(GoParser.IdContext ctx) {
+		Token identifierToken = ctx.IDENTIFIER().getSymbol();
+
+		if (ctx.expression() != null) {
+			// Visita recursivamente a expressão para checar erro
+			Type expressionType = visit(ctx.expression());
+
+			// Verifica se o index é valido
+			checkIndex(identifierToken.getLine(), expressionType);
+		}
+
+		return checkVar(identifierToken);
+	}
 
 }
