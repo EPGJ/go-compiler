@@ -10,14 +10,14 @@ public final class VarTable {
 
 	private Map<String, Entry> table = new HashMap<>();
 
-	public boolean lookupVar(String name) {
-		if (table.containsKey(name))
+	public boolean lookupVar(String name, String scope) {
+		if (table.containsKey(name) && table.get(name).scope.equals(scope))
 			return true;
 		return false;
 	}
 
-	public void addVar(String name, int line, Type type) {
-		Entry entry = new Entry(name, line, type);
+	public void addVar(String name, int line, Type type, String scope, int argSize) {
+		Entry entry = new Entry(name, line, type,scope,argSize);
 		table.put(name, entry);
 	}
 
@@ -32,6 +32,12 @@ public final class VarTable {
 	public Type getType(String name) {
 		return table.get(name).type;
 	}
+	public String getScope(String name){
+		return table.get(name).scope;
+	}
+	public int getArgSize(String name){
+		return  table.get(name).argSize;
+	}
 
 	public String toString() {
 		StringBuilder sb = new StringBuilder();
@@ -39,7 +45,7 @@ public final class VarTable {
 		f.format("Variables table:\n");
 
 		for( Map.Entry entry:table.entrySet() ) {
-			f.format("Entry -- name: %s, line: %d, type: %s\n", entry.getKey(), getLine(entry.getKey().toString()), getType(entry.getKey().toString()));
+			f.format("Entry -- name: %s, scope: %s, line: %d, type: %s\n", entry.getKey(), getScope(entry.getKey().toString()), getLine(entry.getKey().toString()), getType(entry.getKey().toString()));
 		}
 
 		f.close();
@@ -50,11 +56,15 @@ public final class VarTable {
 		String name;
 		int line;
 		Type type;
+		String scope;
+		int argSize;
 
-		Entry(String name, int line, Type type) {
+		Entry(String name, int line, Type type, String scope, int argSize) {
 			this.name = name;
 			this.line = line;
 			this.type = type;
+			this.scope = scope;
+			this.argSize = argSize;
 		}
 	}
 }

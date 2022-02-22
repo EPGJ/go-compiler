@@ -8,6 +8,8 @@ import tables.FuncTable;
 import tables.StrTable;
 import tables.VarTable;
 import typing.Type;
+import ast.AST;
+import ast.NodeKind;
 
 public class SemanticChecker extends GoParserBaseVisitor<Type> {
 
@@ -17,10 +19,12 @@ public class SemanticChecker extends GoParserBaseVisitor<Type> {
 
 	Type lastDeclType; // Variável "global" com o último tipo declarado.
 	Type lastDeclFuncType; // Global variable with the last declared func type
-	int lastDeclArgsSize; // Global variable with the last declared argsSize
+	int lastDeclFuncArgsSize; // Global variable with the last declared argsSize
+	int lastDeclArrayArgsSize;
 	int lastExpressionListSize;
+	String lastDeclFuncName;
 
-	private boolean passed = true;
+	AST root;
 
 	/*
 	 *
@@ -29,31 +33,30 @@ public class SemanticChecker extends GoParserBaseVisitor<Type> {
 	 */
 
 	// Testa se o dado token foi declarado antes.
-	Type checkVar(Token token) {
+	AST checkVar(Token token) {
 		String text = token.getText();
 		int line = token.getLine();
-		boolean isInTable = vt.lookupVar(text);
+		boolean isInTable = vt.lookupVar(text, lastDeclFuncName);
 		if (!isInTable) {
 			System.err.printf("SEMANTIC ERROR (%d): variable '%s' was not declared.\n", line, text);
-			passed = false;
-			return Type.NO_TYPE;
+			System.exit(1);
 		}
-		return vt.getType(text);
+		return new AST(NodeKind.VAR_USE_NODE, vt.getType(text), text);
 	}
 
 	// Cria uma nova variável a partir do dado token.
-	void newVar(Token token) {
+	AST newVar(Token token) {
 		String text = token.getText();
 		int line = token.getLine();
-		boolean isInTable = vt.lookupVar(text);
+		boolean isInTable = vt.lookupVar(text, lastDeclFuncName);
 		if (!isInTable) {
 			System.err.printf(
 					"SEMANTIC ERROR (%d): variable '%s' already declared at line %d.\n",
 					line, text, vt.getLine(text));
-			passed = false;
-			return;
+					System.exit(1);
 		}
-		vt.addVar(text, line, lastDeclType);
+		vt.addVar(text, line, lastDeclType, lastDeclFuncName,lastDeclArrayArgsSize);
+		return new AST(NodeKind.VAR_DECL_NODE, lastDeclType, text);
 	}
 
 	/*
@@ -63,30 +66,29 @@ public class SemanticChecker extends GoParserBaseVisitor<Type> {
 	 */
 
 	// Testa se a função foi declarada antes.
-	Type checkFunc(Token token) {
+	AST checkFunc(Token token) {
 		String text = token.getText();
 		int line = token.getLine();
 		boolean isInTable = ft.lookupFunc(text);
 		if (!isInTable) {
 			System.err.printf("SEMANTIC ERROR (%d): function '%s' was not declared.\n", line, text);
-			passed = false;
-			return Type.NO_TYPE;
+			System.exit(1);
 		}
-		return ft.getType(text);
+		return new AST(NodeKind.FUNC_CALL_NODE, ft.getType(text), text);
 	}
 
 	// Cria uma nova função a partir do dado token.
-	void newFunc(Token token, int argsSize) {
+	AST newFunc(Token token, int argsSize) {
 		String text = token.getText();
 		int line = token.getLine();
 		boolean isInTable = ft.lookupFunc(text);
 		if (!isInTable) {
 			System.err.printf("SEMANTIC ERROR (%d): function '%s' already declared at line %d.\n",
 					line, text, ft.getLine(text));
-			passed = false;
-			return;
+					System.exit(1);
 		}
 		ft.addFunc(text, line, lastDeclFuncType, argsSize);
+		return new AST(NodeKind.FUNC_DECL_NODE, lastDeclFuncType, text);
 	}
 
 	// Verifica se a quantidade de argumentos da função está correta.
@@ -787,6 +789,10 @@ public class SemanticChecker extends GoParserBaseVisitor<Type> {
 		}
 
 		return checkVar(identifierToken);
+	}
+
+	public void printAST() {
+    	AST.printDot(root, vt);
 	}
 
 }

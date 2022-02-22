@@ -11,8 +11,6 @@ import parser.GoLexer;
 import parser.GoParser;
 
 public class Main {
-
-
 	public static void main(String[] args) throws IOException {
 		// Cria um CharStream que lê os caracteres de um arquivo.
 		// O livro do ANTLR fala para criar um ANTLRInputStream,
@@ -43,10 +41,8 @@ public class Main {
 		checker.visit(tree);
 
 		// Saída final.
-		if (checker.hasPassed()) {
-			System.out.println("PARSE SUCCESSFUL!");
-			checker.printTables();
-		}
+		checker.printAST();
+
 	}
 
 }
