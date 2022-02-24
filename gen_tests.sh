@@ -1,6 +1,6 @@
 #!/bin/bash
 
-FOLDER=no-errors
+FOLDER=with-erros
 
 for infile in `ls tests/$FOLDER/*.go`; do
     make run FILE=$infile 

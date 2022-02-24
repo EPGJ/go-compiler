@@ -40,8 +40,8 @@ javac:
 
 run:
 	$(JAVA) $(CLASS_PATH_OPTION):$(BIN_PATH) checker/Main $(FILE) 2> ast.dot
-	dot -Tpdf ast.dot -o ast.pdf
+	dot -Tpdf ast.dot -o $(FILE).pdf
 
 
 clean:
-	@rm -rf $(GEN_PATH) $(BIN_PATH) $(SOURCE_PATH)/.antlr target/
+	@rm -rf $(GEN_PATH) $(BIN_PATH) $(SOURCE_PATH)/.antlr target/ tests/*/*.pdf
