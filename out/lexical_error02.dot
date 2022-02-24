@@ -1,2 +1,0 @@
-line 7:7 token recognition error at: '#'
-line 7:9 extraneous input '2' expecting {'switch', 'if', 'for', 'return', 'var', IDENTIFIER, INPUT, OUTPUT, '}'}

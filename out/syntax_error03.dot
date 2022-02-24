@@ -1,2 +1,0 @@
-line 7:2 missing '{' at 'a'
-line 8:1 extraneous input '<EOF>' expecting {'switch', 'if', 'for', 'return', 'var', IDENTIFIER, INPUT, OUTPUT, '}'}
