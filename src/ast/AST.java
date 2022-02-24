@@ -31,14 +31,14 @@ public class AST {
 		this(kind, 0, floatData, type);
 	}
 
-	// Add child to node
+	// Adiciona filho ao node
 	public void addChild(AST child) {
 		if(child == null) return;
 
 		this.children.add(child);
 	}
 
-	// Get child at given index
+	// Retorna filho com índice idx
 	public AST getChild(int idx) {
 		if(idx >= 0 && idx <= this.children.size()) {
 			return this.children.get(idx);
@@ -46,7 +46,7 @@ public class AST {
 		return null;
 	}
 
-	// Add all children to node
+	// Adiciona todos os filhos ao node
 	public static AST newSubtree(NodeKind kind, Type type, AST... children) {
 		AST node = new AST(kind, 0, type);
 	    for (AST child: children) {
@@ -64,7 +64,6 @@ public class AST {
 		System.out.println(this.children.size());
 	}
 
-	// --------------------------------- Testing -------------------------------
 	
 	private static int nr;
 	private static VarTable vt;

@@ -19,22 +19,12 @@ public class SemanticChecker extends GoParserBaseVisitor<AST> {
 
 	Type lastDeclType; // Variável "global" com o último tipo declarado.
 	Type lastDeclFuncType; // Variável "global" com o último tipo de retorno de função declarado. 
-	String lastDeclFuncName; // Variável "global" com o último nome de função declarado 
 	int lastDeclFuncArgsSize; // Variável "global" com o tamanho de argumentos da ultima função declarada
 	int lastDeclArrayArgsSize; // Variável "global" com o tamanho de argumentos do ultimo array declarado 
 	int lastExpressionListSize;
+	String lastDeclFuncName; // Variável "global" com o último nome de função declarado 
 
 	AST root;
-
-	void printTables() {
-		System.out.print("\n\n");
-		System.out.print(st);
-		System.out.print("\n\n");
-		System.out.print(vt);
-		System.out.print("\n\n");
-		System.out.print(ft);
-		System.out.print("\n\n");
-	}
 
     void printAST() {
     	AST.printDot(root, vt);
