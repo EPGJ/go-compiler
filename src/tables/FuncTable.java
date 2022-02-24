@@ -6,7 +6,6 @@ import java.util.List;
 
 import typing.Type;
 
-// TODO: implement hash table
 public class FuncTable {
 	
     private List<Entry> table = new ArrayList<Entry>();

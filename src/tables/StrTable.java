@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.Formatter;
 
 
-// TODO: implement hash table
 @SuppressWarnings("serial")
 public final class StrTable extends ArrayList<String> {
 

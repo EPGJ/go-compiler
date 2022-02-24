@@ -26,8 +26,7 @@ IN=tests
 all: antlr javac
 	@echo -e "\nDone."
 
-# Documentação para a flag -Xexact-output-dir pode ser
-# encontrada em https://github.com/antlr/antlr4/blob/master/doc/tool-options.md#-xexact-output-dir
+# https://github.com/antlr/antlr4/blob/master/doc/tool-options.md#-xexact-output-dir
 antlr:
 	@echo -e "Generating parser with ANTLR..."
 	$(ANTLR4) -no-listener -visitor -package parser -Xexact-output-dir -o $(GEN_PATH) $(SOURCE_PATH)/GoLexer.g4 $(SOURCE_PATH)/GoParser.g4

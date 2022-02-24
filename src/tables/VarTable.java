@@ -6,7 +6,6 @@ import java.util.List;
 
 import typing.Type;
 
-// TODO: implement hash table
 public final class VarTable {
 
 	private List<Entry> table = new ArrayList<Entry>();
