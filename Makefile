@@ -2,7 +2,7 @@ JAVA=java
 JAVAC=javac
 
 # O ANTLR deve estar instalado numa pasta chamada tools na raiz do projeto
-ANTLR_PATH=tools/antlr-4.9.2-complete.jar
+ANTLR_PATH=/usr/local/lib/antlr-4.9.2-complete.jar
 CLASS_PATH_OPTION=-cp .:$(ANTLR_PATH)
 
 # Comandos como descritos na página do ANTLR.
