@@ -1,69 +1,82 @@
 package tables;
 
-import java.util.Map;
-import java.util.HashMap;
+import java.util.ArrayList;
 import java.util.Formatter;
+import java.util.List;
 
 import typing.Type;
 
+// TODO: implement hash table
 public final class VarTable {
 
-	private Map<String, Entry> table = new HashMap<>();
+	private List<Entry> table = new ArrayList<Entry>();
 
-	public boolean lookupVar(String key) {
-		if (table.containsKey(key))
-			return true;
-		return false;
-	}
-
-	public void addVar(String name, int line, Type type, String scope, int argSize) {
-		Entry entry = new Entry(name, line, type,scope,argSize);
-		table.put(name.concat(scope), entry);
+	public int lookupVar(String name, String scope) {
+		for (int i = 0; i < table.size(); i++) {
+			if (table.get(i).name.equals(name) && table.get(i).scope.equals(scope)) {
+				return i;
+			}
+		}
+		return -1;
 	}
 
-	public String getName(String key) {
-	return table.get(key).name;
+	public int addVar(String name, String scope, int line, Type type, int argSize) {
+		Entry entry = new Entry(name, scope, line, type, argSize);
+		int idxAdded = table.size();
+		table.add(entry);
+		return idxAdded;
 	}
 
-	public int getLine(String key) {
-		return table.get(key).line;
+	public String getName(int i) {
+		return table.get(i).name;
 	}
 
-	public Type getType(String key) {
-		return table.get(key).type;
+	public String getScope(int i) {
+		return table.get(i).scope;
 	}
-	public String getScope(String key){
-		return table.get(key).scope;
+
+	public int getLine(int i) {
+		return table.get(i).line;
 	}
-	public int getArgSize(String key){
-		return  table.get(key).argSize;
+
+	public Type getType(int i) {
+		return table.get(i).type;
+	}
+
+	public int getArgSize(int i) {
+		return table.get(i).argSize;
+	}
+
+	public int size() {
+		return table.size();
 	}
 
 	public String toString() {
 		StringBuilder sb = new StringBuilder();
 		Formatter f = new Formatter(sb);
 		f.format("Variables table:\n");
-
-		for( Map.Entry entry:table.entrySet() ) {
-			f.format("Entry -- name: %s, scope: %s, line: %d, type: %s\n", getName(entry.getKey().toString()), getScope(entry.getKey().toString()), getLine(entry.getKey().toString()), getType(entry.getKey().toString()));
+		for (int i = 0; i < table.size(); i++) {
+			f.format("Entry %d -- name: %s, scope: %s, line: %d, type: %s\n",
+				i, getName(i), getScope(i), getLine(i), getType(i).toString()
+			);
 		}
-
 		f.close();
 		return sb.toString();
 	}
 
 	private final class Entry {
 		String name;
+		String scope;
 		int line;
 		Type type;
-		String scope;
-		int argSize;
+		int argSize;		
 
-		Entry(String name, int line, Type type, String scope, int argSize) {
+
+		Entry(String name, String scope, int line, Type type, int argSize) {
 			this.name = name;
+			this.scope = scope;
 			this.line = line;
 			this.type = type;
-			this.scope = scope;
 			this.argSize = argSize;
 		}
 	}

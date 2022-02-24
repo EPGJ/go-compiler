@@ -42,12 +42,6 @@ run:
 	$(JAVA) $(CLASS_PATH_OPTION):$(BIN_PATH) checker/Main $(FILE) 2> ast.dot
 	dot -Tpdf ast.dot -o ast.pdf
 
-# runall:
-# 	@echo "Scanning $(IN) folder for files..."
-# 	@-for FILE in $(IN)/*.go; do \
-# 	 	echo -e "\nRunning $${FILE}" && \
-# 	 	$(JAVA) $(CLASS_PATH_OPTION):$(BIN_PATH) checker/Main $${FILE}; \
-# 	done;
 
 clean:
 	@rm -rf $(GEN_PATH) $(BIN_PATH) $(SOURCE_PATH)/.antlr target/

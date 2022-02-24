@@ -10,25 +10,25 @@ import typing.Type;
 
 public class AST {
 	public  final NodeKind kind;
-	public  final String key;
- 	public  final float floatData;
+	public  final int intData;
+	public  final float floatData;
 	public  final Type type;
 	private final List<AST> children;
 
-	private AST(NodeKind kind, float floatData, Type type, String key) {
+	private AST(NodeKind kind, int intData, float floatData, Type type) {
 		this.kind = kind;
+		this.intData = intData;
 		this.floatData = floatData;
 		this.type = type;
-		this.key = key;
 		this.children = new ArrayList<AST>();
 	}
 
-	public AST(NodeKind kind, Type type, String key) {
-		this(kind, 0.0f, type, key);
+	public AST(NodeKind kind, int intData, Type type) {
+		this(kind, intData, 0.0f, type);
 	}
 
-	public AST(NodeKind kind,Type type, float floatData ) {
-		this(kind, floatData, type, " ");
+	public AST(NodeKind kind, float floatData, Type type) {
+		this(kind, 0, floatData, type);
 	}
 
 	// Add child to node
@@ -48,7 +48,7 @@ public class AST {
 
 	// Add all children to node
 	public static AST newSubtree(NodeKind kind, Type type, AST... children) {
-		AST node = new AST(kind, type, " ");
+		AST node = new AST(kind, 0, type);
 	    for (AST child: children) {
 			if(children == null) continue;
 
@@ -80,10 +80,10 @@ public class AST {
 			|| this.kind == NodeKind.VAR_USE_NODE 
 			|| this.kind == NodeKind.DECLARE_ASSIGN_NODE
 			) {
-			if(vt.getArgSize(this.key) > 0) {
-				System.err.printf("[%d] ", vt.getArgSize(this.key));
+			if(vt.getArgSize(this.intData) > 0) {
+				System.err.printf("[%d] ", vt.getArgSize(this.intData));
 			}
-	    	System.err.printf("%s@", vt.getName(this.key));
+	    	System.err.printf("%s@", vt.getName(this.intData));
 	    } else {
 			System.err.printf("%s", this.kind.toString());
 	    }
@@ -91,9 +91,9 @@ public class AST {
 	        if (this.kind == NodeKind.FLOAT32_VAL_NODE) {
 	        	System.err.printf("%.2f", this.floatData);
 	        } else if (this.kind == NodeKind.STRING_VAL_NODE) {
-	        	System.err.printf("@%s", vt.getName(this.key));
+	        	System.err.printf("@%d", this.intData);
 	        } else {
-	        	System.err.printf("%s", vt.getName(this.key));
+	        	System.err.printf("%d", this.intData);
 	        }
 	    }
 	    System.err.printf("\"];\n");
