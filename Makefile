@@ -26,7 +26,6 @@ IN=tests
 all: antlr javac
 	@echo -e "\nDone."
 
-# https://github.com/antlr/antlr4/blob/master/doc/tool-options.md#-xexact-output-dir
 antlr:
 	@echo -e "Generating parser with ANTLR..."
 	$(ANTLR4) -no-listener -visitor -package parser -Xexact-output-dir -o $(GEN_PATH) $(SOURCE_PATH)/GoLexer.g4 $(SOURCE_PATH)/GoParser.g4
@@ -40,7 +39,6 @@ javac:
 run:
 	$(JAVA) $(CLASS_PATH_OPTION):$(BIN_PATH) checker/Main $(FILE) 2> ast.dot
 	dot -Tpdf ast.dot -o $(FILE).pdf
-
 
 clean:
 	@rm -rf $(GEN_PATH) $(BIN_PATH) $(SOURCE_PATH)/.antlr target/ tests/*/*.pdf *.dot *.pdf
