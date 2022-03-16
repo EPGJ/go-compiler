@@ -1,5 +1,5 @@
 # Go compiler
-## Analisador Léxico e sintático
+## Analisador Léxico, sintático e semântico
 
 Para compilar siga os seguintes passos:
 
