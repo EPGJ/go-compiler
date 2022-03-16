@@ -32,7 +32,6 @@ public abstract class ASTBaseVisitor<T> {
 			case STATEMENT_SECTION_NODE: 	return visitStatementSection(node);
 			case RETURN_NODE: 				return visitReturn(node);
 			case VAR_DECL_NODE: 			return visitVarDecl(node);
-			case DECLARE_ASSIGN_NODE: 		return visitDeclareAssign(node);
 			case ASSIGN_NODE: 				return visitAssign(node);
 			case PLUS_ASSIGN_NODE: 			return visitPlusAssign(node);
 			case MINUS_ASSIGN_NODE: 		return visitMinusAssign(node);
@@ -42,9 +41,6 @@ public abstract class ASTBaseVisitor<T> {
 			case ELSE_NODE: 				return visitElse(node);
 			case WHILE_NODE: 				return visitWhile(node);
 			case FOR_NODE: 					return visitFor(node);
-			case SWITCH_NODE: 				return visitSwitch(node);
-			case CASE_NODE: 				return visitCase(node);
-			case DEFAULT_NODE: 				return visitDefault(node);
 			case FUNC_CALL_NODE: 			return visitFuncCall(node);
  
 			case FUNC_MAIN_NODE: 			return visitFuncMain(node);
@@ -87,7 +83,6 @@ public abstract class ASTBaseVisitor<T> {
 	protected abstract T visitStatementSection(AST node);
 	protected abstract T visitReturn(AST node);
 	protected abstract T visitVarDecl(AST node);
-	protected abstract T visitDeclareAssign(AST node);
 	protected abstract T visitAssign(AST node);
 	protected abstract T visitPlusAssign(AST node);
 	protected abstract T visitMinusAssign(AST node);
@@ -97,16 +92,13 @@ public abstract class ASTBaseVisitor<T> {
 	protected abstract T visitElse(AST node);
 	protected abstract T visitWhile(AST node);
 	protected abstract T visitFor(AST node);
-	protected abstract T visitSwitch(AST node);
-	protected abstract T visitCase(AST node);
-	protected abstract T visitDefault(AST node);
 	protected abstract T visitFuncCall(AST node);
 	
 	protected abstract T visitFuncMain(AST node);
 	protected abstract T visitFuncDecl(AST node);
 	protected abstract T visitFuncArgs(AST node);
+	
 	protected abstract T visitExpressionList(AST node);
-
 	protected abstract T visitProgram(AST node);
 	protected abstract T visitFuncList(AST node);
 	protected abstract T visitVarUse(AST node);

@@ -1,4 +1,4 @@
-package checker;
+
 
 import java.io.IOException;
 
@@ -7,8 +7,13 @@ import org.antlr.v4.runtime.CharStreams;
 import org.antlr.v4.runtime.CommonTokenStream;
 import org.antlr.v4.runtime.tree.ParseTree;
 
+import checker.SemanticChecker;
+
 import parser.GoLexer;
 import parser.GoParser;
+
+import code.CodeGen;
+import code.Interpreter;
 
 public class Main {
 	public static void main(String[] args) throws IOException {
@@ -17,6 +22,7 @@ public class Main {
 		// mas a partir da versão 4.7 essa classe foi deprecada.
 		// Esta é a forma atual para criação do stream.
 		CharStream input = CharStreams.fromFileName(args[0]);
+		String flag = args[1];
 
 		// Cria um lexer que consome a entrada do CharStream.
 		GoLexer lexer = new GoLexer(input);
@@ -40,8 +46,16 @@ public class Main {
 		SemanticChecker checker = new SemanticChecker();
 		checker.visit(tree);
 
-		// Saída final.
-		checker.printAST();
+		
+
+		if(flag.equals("-i")){
+			Interpreter interpreter = new Interpreter(checker.st, checker.vt, checker.ft);
+			interpreter.execute(checker.root);
+		} else {
+			CodeGen codeGen = new CodeGen(checker.st, checker.vt);
+			codeGen.execute(checker.root);
+		}
+
 		
 	}
 

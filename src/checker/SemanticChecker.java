@@ -97,13 +97,12 @@ public class SemanticChecker extends GoParserBaseVisitor<AST> {
 	}
 
 	// Verifica se a quantidade de argumentos da função está correta.
-	// Atenção: esta função só pode ser chamada após a chamada da função chekFunc
-    void checkFuncCall(Token token) {
+    void checkFuncCall(int lineNo, Type t) {
 		String text = token.getText();
 		int line = token.getLine();
 		int idx = ft.lookupFunc(token.getText());
 
-		// Não mostra erro de "função não declarada"
+		// Doesnt show 'function not declared' error
 		if(idx != -1) {
 			int argsSize = ft.getArgsSize(idx);
 	
@@ -181,17 +180,6 @@ public class SemanticChecker extends GoParserBaseVisitor<AST> {
 			System.exit(1);
 		}
     }
-
-    // Verifica se os tipos são iguais
-	private void checkCase(int lineNo, Type t1, Type t2) {
-		if(t1 != t2) {
-			System.out.printf(
-				"SEMANTIC ERROR (%d): incompatible types for case, expected '%s' but expression is '%s'.\n",
-				lineNo, t1.toString(), t2.toString()
-			);
-			System.exit(1);
-		}
-	}
 
     // Imprime erro de incompatibilidade de tipos na declaração de variáveis
 	private void typeInitError(int lineNo, String varName, Type t1, Type t2) {
@@ -477,42 +465,22 @@ public class SemanticChecker extends GoParserBaseVisitor<AST> {
 	// Visita a regra func_main: FUNC MAIN L_PAREN func_args? R_PAREN var_types? statement_section
 	@Override
 	public AST visitFunc_main(GoParser.Func_mainContext ctx) {
-		if(ctx.var_types() != null) {
-			// Define lastDeclType 
-			visit(ctx.var_types());
-		} else {
-			// Função não retorna nenhum tipo
-			lastDeclType = Type.NO_TYPE;
-		}
-
-		// Salva o tipo da função antes da lastDeclType ser reescrita pela declaração de argumentos
-		lastDeclFuncType = lastDeclType;
-
-		AST funcArgs = null;
-		if(ctx.func_args() != null) {
-			// Define lastDeclFuncArgsSize
-			funcArgs = visit(ctx.func_args());
-		} else {
-			// Função não tem argumentos
-			lastDeclFuncArgsSize = 0;
-		}
-
-		// Define a lastDeclFuncName para checagem futura de escopo de variável
+		// Defines the lastDeclFuncName for future var scope checking
 		lastDeclFuncName = "main";
+		lastDeclFuncType = Type.NO_TYPE;
 
-		// Visita recursivamente a regra para checagem de erros
+		// Recursively visits rule for error checking
 		AST statements = visit(ctx.statement_section());
 
 		Token mainToken = ctx.MAIN().getSymbol();
 
-		// Adiciona a função principal na tabela de funções
+		// Adds the main function into the functions table
 		int idx = ft.addFunc(mainToken.getText(), mainToken.getLine(), lastDeclFuncType, lastDeclFuncArgsSize);		 
 
-		// Cria o nó para a função principal
+		// Creates the node for the main function
 		AST mainFunc = new AST(NodeKind.FUNC_MAIN_NODE, idx, lastDeclFuncType);
 
-		// Adiciona as instruções como filho da função
-		mainFunc.addChild(funcArgs);
+		// Adds the statements as function's child
 		mainFunc.addChild(statements);
 
 		return mainFunc;
