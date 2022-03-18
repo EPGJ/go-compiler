@@ -13,9 +13,9 @@ import typing.Type;
 
 public class SemanticChecker extends GoParserBaseVisitor<AST> {
 
-	private StrTable st = new StrTable(); // Tabela de strings
-	private VarTable vt = new VarTable(); // Tabela de variáveis.
-	private FuncTable ft = new FuncTable(); // Tabela de funcoes.
+	public StrTable st = new StrTable(); // Tabela de strings
+	public VarTable vt = new VarTable(); // Tabela de variáveis.
+	public FuncTable ft = new FuncTable(); // Tabela de funcoes.
 
 	Type lastDeclType; // Variável "global" com o último tipo declarado.
 	Type lastDeclFuncType; // Variável "global" com o último tipo de retorno de função declarado. 
@@ -24,7 +24,7 @@ public class SemanticChecker extends GoParserBaseVisitor<AST> {
 	int lastExpressionListSize;
 	String lastDeclFuncName; // Variável "global" com o último nome de função declarado 
 
-	AST root;
+	public AST root;
 
     void printAST() {
     	AST.printDot(root, vt);
@@ -97,7 +97,7 @@ public class SemanticChecker extends GoParserBaseVisitor<AST> {
 	}
 
 	// Verifica se a quantidade de argumentos da função está correta.
-    void checkFuncCall(int lineNo, Type t) {
+    void checkFuncCall(Token token) {
 		String text = token.getText();
 		int line = token.getLine();
 		int idx = ft.lookupFunc(token.getText());

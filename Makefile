@@ -34,11 +34,17 @@ javac:
 	@echo -e "\nCompiling checker..."
 	@rm -rf $(BIN_PATH)
 	@mkdir $(BIN_PATH)
-	$(JAVAC) $(CLASS_PATH_OPTION) -d $(BIN_PATH) $(SOURCE_PATH)/*/*.java
+	$(JAVAC) $(CLASS_PATH_OPTION) -d $(BIN_PATH)  $(SOURCE_PATH)/Main.java  $(SOURCE_PATH)/*/*.java
 
 run:
-	$(JAVA) $(CLASS_PATH_OPTION):$(BIN_PATH) checker/Main $(FILE) 2> ast.dot
-	dot -Tpdf ast.dot -o $(FILE).pdf
+	$(JAVA) $(CLASS_PATH_OPTION):$(BIN_PATH) Main $(file) $(flag)
+
+simulator:
+	@echo -e "\nCompiling the NSTM Simulator..."
+	gcc -Wall -Wconversion -o NSTMsimulator $(SOURCE_PATH)/nstm/*.c 
+
+runsim:
+	./NSTMsimulator < $(file)
 
 clean:
 	@rm -rf $(GEN_PATH) $(BIN_PATH) $(SOURCE_PATH)/.antlr target/ tests/*/*.pdf *.dot *.pdf
