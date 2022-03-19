@@ -39,12 +39,5 @@ javac:
 run:
 	$(JAVA) $(CLASS_PATH_OPTION):$(BIN_PATH) Main $(file) $(flag)
 
-simulator:
-	@echo -e "\nCompiling the NSTM Simulator..."
-	gcc -Wall -Wconversion -o NSTMsimulator $(SOURCE_PATH)/nstm/*.c 
-
-runsim:
-	./NSTMsimulator < $(file)
-
 clean:
 	@rm -rf $(GEN_PATH) $(BIN_PATH) $(SOURCE_PATH)/.antlr target/ tests/*/*.pdf *.dot *.pdf
