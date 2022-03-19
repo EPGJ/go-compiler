@@ -3,7 +3,6 @@ package code;
 
 public enum OpCode {
 
-	INVALID("Invalid", 2),
 	RET("Ret", 2),
 	BR("Br", 2),
 	SWITCH("Switch", 2),

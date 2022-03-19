@@ -15,7 +15,7 @@ public final class CodeGen extends ASTBaseVisitor<Integer> {
 	private final VarTable vt;
 
 	private static int nextInstr;
-	private static int intRegsCount;
+	private static int intRegsCount = 0;
 	private static int floatRegsCount;
 	
 	public CodeGen(StrTable st, VarTable vt) {
@@ -50,9 +50,56 @@ public final class CodeGen extends ASTBaseVisitor<Integer> {
 	    }
 	}
 
+	/*------------------------------------------------------------------------------*
+	 *	Emits
+	 *------------------------------------------------------------------------------*/
+	
+	private void emit(OpCode op, int o1, int o2, int o3) {
+		Instruction instr = new Instruction(op, o1, o2, o3);
+	    code[nextInstr] = instr;
+	    nextInstr++;
+	}
+	
+	private void emit(OpCode op) {
+		emit(op, 0, 0, 0);
+	}
+	
+	private void emit(OpCode op, int o1) {
+		emit(op, o1, 0, 0);
+	}
+	
+	private void emit(OpCode op, int o1, int o2) {
+		emit(op, o1, o2, 0);
+	}
+
+	private void backpatchJump(int instrAddr, int jumpAddr) {
+	    code[instrAddr].o1 = jumpAddr;
+	}
+
+	private void backpatchBranch(int instrAddr, int offset) {
+	    code[instrAddr].o2 = offset;
+	}
+
+	 /*------------------------------------------------------------------------------*
+	 *	Registers
+	 *------------------------------------------------------------------------------*/
+	
+	private int newIntReg() {
+		return intRegsCount++; 
+	}
+    
+	private int newFloatReg() {
+		return floatRegsCount++;
+	}
+	
+	 /*------------------------------------------------------------------------------*
+	 *	Values
+	 *------------------------------------------------------------------------------*/
+
+
+
 	@Override
 	protected Integer visitBoolVal(AST node) {
-		// TODO Auto-generated method stub
 		return null;
 	}
 

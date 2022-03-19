@@ -14,6 +14,7 @@ import parser.GoParser;
 
 import code.CodeGen;
 import code.Interpreter;
+import code.LLVMGenerator;
 
 public class Main {
 	public static void main(String[] args) throws IOException {
@@ -52,7 +53,9 @@ public class Main {
 			Interpreter interpreter = new Interpreter(checker.st, checker.vt, checker.ft);
 			interpreter.execute(checker.root);
 		} else {
-			CodeGen codeGen = new CodeGen(checker.st, checker.vt);
+			// CodeGen codeGen = new CodeGen(checker.st, checker.vt);
+			// codeGen.execute(checker.root);
+			LLVMGenerator codeGen = new LLVMGenerator(checker.st, checker.vt);
 			codeGen.execute(checker.root);
 		}
 
