@@ -34,17 +34,7 @@ MIT
 **Free Software, Hell Yeah!**
 
 
-# Gopiler
-A compiler for simple Go programs. This is a project proposed as part of the Compilers course at UFES by the Professor Eduardo Zambon.
 
-## How to run
-
-Open the terminal and compile the parser with
-```bash
-make
-```
-
-The `Main.java` file expects a flag that will determine how the AST will be used.
 
 Flags:
   * `-c` (default)
