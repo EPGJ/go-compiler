@@ -128,13 +128,13 @@ public class LLVMGenerator extends ASTBaseVisitor<Void>{
 
 		// Iterates over the expression list's children to print them
 		for (AST expression : expressionList.getChildren()) {
-			int x = visit(expression);
+			visit(expression);
 			
 			switch(expression.type) {
-				case INT_TYPE:  	buffer+=x;		break;
-				case FLOAT32_TYPE: 	buffer+=x;		break;
-				case BOOL_TYPE: 	buffer+=x;   	break;
-				case STRING_TYPE:  	buffer+=x;		break;
+				case INT_TYPE:  	/*buffer+=x;*/		break;
+				case FLOAT32_TYPE: 	/*buffer+=x;*/		break;
+				case BOOL_TYPE: 	/*buffer+=x;*/   	break;
+				case STRING_TYPE:  	/*buffer+=x;*/		break;
 				case NO_TYPE:
 				default:
 					System.err.printf("Invalid output type: %s!\n", expression.type.toString());
@@ -474,9 +474,21 @@ public class LLVMGenerator extends ASTBaseVisitor<Void>{
 		Type varType = vt.getType(varIdx);
 
 	    if (varType == Type.FLOAT32_TYPE) {
-	        emit(STWf, addr, x);
+	       /*
+            %1 = alloca i32, align 4
+            %2 = alloca float, align 4
+            store i32 0, i32* %1, align 4
+            store float 1.000000e+00, float* %2, align 4
+            ret i32 0
+           */
 	    } else {
-	        emit(STWi, addr, x);
+	        /*
+            %1 = alloca i32, align 4
+            %2 = alloca i32, align 4
+            store i32 0, i32* %1, align 4
+            store i32 1, i32* %2, align 4
+            ret i32 0
+            */
 	    }
 
         return null;
@@ -484,25 +496,142 @@ public class LLVMGenerator extends ASTBaseVisitor<Void>{
 
     @Override
     protected Void visitPlusAssign(AST node) {
-        // TODO Auto-generated method stub
-        return null;
+        // Visits the expression to push its value to the stack
+		visit(node.getChild(1));
+
+		// Get the var index and type 
+		int varIdx = node.getChild(0).intData;
+		Type varType = vt.getType(varIdx);
+
+		if (varType == Type.FLOAT32_TYPE) {
+			/*
+            %1 = alloca i32, align 4
+            %2 = alloca float, align 4
+            store i32 0, i32* %1, align 4
+            store float 1.000000e+00, float* %2, align 4
+            %3 = load float, float* %2, align 4
+            %4 = fadd float %3, 2.000000e+00
+            store float %4, float* %2, align 4
+            ret i32 0
+            */
+	    } else {
+			/*
+            %1 = alloca i32, align 4
+            %2 = alloca i32, align 4
+            store i32 0, i32* %1, align 4
+            store i32 1, i32* %2, align 4
+            %3 = load i32, i32* %2, align 4
+            %4 = add nsw i32 %3, 2
+            store i32 %4, i32* %2, align 4
+            ret i32 0
+            */
+	    }
+
+		return null;
     }
 
     @Override
     protected Void visitMinusAssign(AST node) {
-        // TODO Auto-generated method stub
+        // Visits the expression to push its value to the stack
+		visit(node.getChild(1));
+
+		// Get the var index and type 
+		int varIdx = node.getChild(0).intData;
+		Type varType = vt.getType(varIdx);
+
+		if (varType == Type.FLOAT32_TYPE) {
+			/*
+            %1 = alloca i32, align 4
+            %2 = alloca float, align 4
+            store i32 0, i32* %1, align 4
+            store float 1.000000e+00, float* %2, align 4
+            %3 = load float, float* %2, align 4
+            %4 = fsub float %3, 2.000000e+00
+            store float %4, float* %2, align 4
+            ret i32 0
+            */
+	    } else {
+			/*
+            %1 = alloca i32, align 4
+            %2 = alloca i32, align 4
+            store i32 0, i32* %1, align 4
+            store i32 1, i32* %2, align 4
+            %3 = load i32, i32* %2, align 4
+            %4 = sub nsw i32 %3, 2
+            store i32 %4, i32* %2, align 4
+            ret i32 0
+            */
+	    }
         return null;
     }
 
     @Override
     protected Void visitPlusPlus(AST node) {
-        // TODO Auto-generated method stub
+        // Visits the expression to push its value to the stack
+		visit(node.getChild(1));
+
+		// Get the var index and type 
+		int varIdx = node.getChild(0).intData;
+		Type varType = vt.getType(varIdx);
+
+		if (varType == Type.FLOAT32_TYPE) {
+			/*
+            %1 = alloca i32, align 4
+            %2 = alloca float, align 4
+            store i32 0, i32* %1, align 4
+            store float 1.000000e+00, float* %2, align 4
+            %3 = load float, float* %2, align 4
+            %4 = fadd float %3, 1.000000e+00
+            store float %4, float* %2, align 4
+            ret i32 0
+            */
+	    } else {
+			/*
+            %1 = alloca i32, align 4
+            %2 = alloca i32, align 4
+            store i32 0, i32* %1, align 4
+            store i32 1, i32* %2, align 4
+            %3 = load i32, i32* %2, align 4
+            %4 = add nsw i32 %3, 1
+            store i32 %4, i32* %2, align 4
+            ret i32 0
+            */
+	    }
         return null;
     }
 
     @Override
     protected Void visitMinusMinus(AST node) {
-        // TODO Auto-generated method stub
+        // Visits the expression to push its value to the stack
+		visit(node.getChild(1));
+
+		// Get the var index and type 
+		int varIdx = node.getChild(0).intData;
+		Type varType = vt.getType(varIdx);
+
+		if (varType == Type.FLOAT32_TYPE) {
+			/*
+            %1 = alloca i32, align 4
+            %2 = alloca float, align 4
+            store i32 0, i32* %1, align 4
+            store float 1.000000e+00, float* %2, align 4
+            %3 = load float, float* %2, align 4
+            %4 = fadd float %3, -1.000000e+00
+            store float %4, float* %2, align 4
+            ret i32 0
+            */
+	    } else {
+			/*
+            %1 = alloca i32, align 4
+            %2 = alloca i32, align 4
+            store i32 0, i32* %1, align 4
+            store i32 1, i32* %2, align 4
+            %3 = load i32, i32* %2, align 4
+            %4 = add nsw i32 %3, -1
+            store i32 %4, i32* %2, align 4
+            ret i32 0
+            */
+	    }
         return null;
     }
 
@@ -514,8 +643,10 @@ public class LLVMGenerator extends ASTBaseVisitor<Void>{
 
     @Override
     protected Void visitElse(AST node) {
-        // TODO Auto-generated method stub
-        return null;
+        // Visits the statement section
+		visit(node.getChild(0));
+
+		return null;
     }
 
     @Override
