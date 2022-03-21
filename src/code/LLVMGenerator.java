@@ -290,18 +290,15 @@ public class LLVMGenerator extends ASTBaseVisitor<Void>{
 		// Emits the 'multiply' for the corresponding type
 	    if (node.type == Type.FLOAT32_TYPE) {
 	        /* codigo llvm 
-            %5 = load float, float* %4, align 4
-            %6 = load i32, i32* %2, align 4
-            %7 = sitofp i32 %6 to float
-            %8 = fmul float %5, %7
-            store float %8, float* %3, align 4 
+            %4 = load float, float* %2, align 4
+            %5 = load float, float* %3, align 4
+            %6 = fmul float %4, %5
             */
 	    } else {
 	        /* codigo llvm 
-            %5 = load i32, i32* %4, align 4
-            %6 = load i32, i32* %2, align 4
-            %7 = mul nsw i32 %5, %6
-            store i32 %7, i32* %3, align 4
+                %4 = load i32, i32* %2, align 4
+                %5 = load i32, i32* %3, align 4
+                %6 = mul nsw i32 %4, %5
             */
 	    }
 
@@ -663,50 +660,65 @@ public class LLVMGenerator extends ASTBaseVisitor<Void>{
 
     @Override
     protected Void visitFuncCall(AST node) {
-        // TODO Auto-generated method stub
         return null;
     }
 
+	/*------------------------------------------------------------------------------*
+	 *	Functions
+	 *------------------------------------------------------------------------------*/
+
     @Override
     protected Void visitFuncMain(AST node) {
-        // TODO Auto-generated method stub
-        return null;
+        visit(node.getChild(0));
+
+		return null; 
     }
 
     @Override
     protected Void visitFuncDecl(AST node) {
-        // TODO Auto-generated method stub
         return null;
     }
 
     @Override
     protected Void visitFuncArgs(AST node) {
-        // TODO Auto-generated method stub
         return null;
     }
 
+    /*------------------------------------------------------------------------------*
+	 *	Others
+	 *------------------------------------------------------------------------------*/
+
     @Override
     protected Void visitExpressionList(AST node) {
-        // TODO Auto-generated method stub
         return null;
     }
 
     @Override
     protected Void visitProgram(AST node) {
-        // TODO Auto-generated method stub
-        return null;
+        // Visits the function list node
+		visit(node.getChild(0));
+
+		// End of program, no need to read from stdin anymore
+		return null; 
     }
 
     @Override
     protected Void visitFuncList(AST node) {
-        // TODO Auto-generated method stub
-        return null;
+        for (AST child : node.getChildren()) {
+			visit(child);
+		}
+		return null; 
     }
 
     @Override
     protected Void visitVarUse(AST node) {
-        // TODO Auto-generated method stub
-        return null;
+        int varIdx = node.intData;
+		if (node.type == Type.FLOAT32_TYPE) {
+			/** code llvm*/
+		} else {
+			/** code llvm*/
+		}
+		return null; 
     }
     
 }
