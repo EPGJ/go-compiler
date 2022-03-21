@@ -289,19 +289,28 @@ public class LLVMGenerator extends ASTBaseVisitor<Void>{
 
 		// Emits the 'multiply' for the corresponding type
 	    if (node.type == Type.FLOAT32_TYPE) {
-	        /* codigo llvm 
+
+            buffer+= "%" + reg++ +"= load float, float* %" + (reg - 3) +", align 4\n";
+			buffer+= "%" + reg++ +"= load float, float* %" + (reg - 3) +", align 4\n";
+			buffer+= "%" + reg++ +"= fmul float %" + (reg - 3) +", %" + (reg - 2) + "\n";
+			
+            /* codigo llvm 
             %4 = load float, float* %2, align 4
             %5 = load float, float* %3, align 4
             %6 = fmul float %4, %5
             */
 	    } else {
+
+            buffer+= "%" + reg++ +"= load i32, i32* %" + (reg - 3) +", align 4\n";
+			buffer+= "%" + reg++ +"= load i32, i32* %" + (reg - 3) +", align 4\n";
+			buffer+= "%" + reg++ +" mul nsw i32 %" + (reg - 3) +", %" + (reg - 2) + "\n";
+
 	        /* codigo llvm 
                 %4 = load i32, i32* %2, align 4
                 %5 = load i32, i32* %3, align 4
                 %6 = mul nsw i32 %4, %5
             */
 	    }
-
         return null;
     }
 
@@ -315,6 +324,12 @@ public class LLVMGenerator extends ASTBaseVisitor<Void>{
 
 		// Emits the 'div' for the corresponding type
 	    if (node.type == Type.FLOAT32_TYPE) {
+            buffer+= "%" + reg++ +"= load float, float* %" + (reg - 2) +", align 4\n";
+			buffer+= "%" + reg++ +"= load i32, i32* %" + (reg - 5) +", align 4\n";
+            buffer+= "%" + reg++ +"= sitofp i32 %" + (reg - 2) +" to float\n";
+			buffer+= "%" + reg++ +"= fdiv float %" + (reg - 4) +", %" + (reg - 2) + "\n";
+			buffer+= "store float %" + (reg - 1) +", float %" + (reg - 6) + ", align 4\n";
+
 	        /* codigo llvm 
             %5 = load float, float* %4, align 4
             %6 = load i32, i32* %2, align 4
@@ -323,6 +338,11 @@ public class LLVMGenerator extends ASTBaseVisitor<Void>{
             store float %8, float* %3, align 4
             */
 	    } else {
+            buffer+= "%" + reg++ +"= load i32, i32* %" + (reg - 2) +", align 4\n";
+			buffer+= "%" + reg++ +"= load i32, i32* %" + (reg - 5) +", align 4\n";
+			buffer+= "%" + reg++ +"= sdiv i32 %" + (reg - 3) +", %" + (reg - 2) + "\n";
+			buffer+= "store i32 %" + (reg - 1) +", i32 %" + (reg - 5) + ", align 4\n";
+            
 	        /* codigo llvm 
             %5 = load i32, i32* %4, align 4
             %6 = load i32, i32* %2, align 4
