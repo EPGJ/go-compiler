@@ -9,13 +9,15 @@ import tables.StrTable;
 import tables.VarTable;
 import typing.Type;
 
-public class LLVMGenerator extends ASTBaseVisitor<Void>{
+public class LLVMGenerator extends ASTBaseVisitor<Integer>{
 
-    static int reg = 1;
+    static int reg = 2;
 
     private static String header_text = "";
     private static String main_text = "";
     private static String buffer = "";
+    private static int buffer_var_int =0;
+    private static float buffer_var_float = 0;
     private static int str_i = 0;
     private static int main_reg = 2;
     private static int br = 0;
@@ -51,6 +53,7 @@ public class LLVMGenerator extends ASTBaseVisitor<Void>{
         text += buffer;
         text += "  ret i32 0\n";
         text += "}\n";
+        
         System.out.println(text);
     }
 
@@ -65,25 +68,25 @@ public class LLVMGenerator extends ASTBaseVisitor<Void>{
     }
 
     @Override
-    protected Void visitBoolVal(AST node) {
+    protected Integer visitBoolVal(AST node) {
         buffer += node.intData;
         return null;
     }
 
     @Override
-    protected Void visitIntVal(AST node) {
-        buffer += node.intData;
+    protected Integer visitIntVal(AST node) {
+        buffer_var_int = node.intData;
         return null;
     }
 
     @Override
-    protected Void visitFloatVal(AST node) {
-        buffer += node.floatData;
+    protected Integer visitFloatVal(AST node) {
+        buffer_var_float = node.floatData;
         return null;
     }
 
     @Override
-    protected Void visitStringVal(AST node) {
+    protected Integer visitStringVal(AST node) {
         buffer += node.intData;
         return null;
     }
@@ -94,7 +97,7 @@ public class LLVMGenerator extends ASTBaseVisitor<Void>{
 
 
     @Override
-    protected Void visitInput(AST node) {
+    protected Integer visitInput(AST node) {
         int varIdx = node.getChild(0).intData;
         Type varType = vt.getType(varIdx);
 
@@ -124,7 +127,7 @@ public class LLVMGenerator extends ASTBaseVisitor<Void>{
 	 *------------------------------------------------------------------------------*/
 
     @Override
-    protected Void visitOutput(AST node) {
+    protected Integer visitOutput(AST node) {
         // Get the expression list node
 		AST expressionList = node.getChild(0);
 
@@ -150,7 +153,7 @@ public class LLVMGenerator extends ASTBaseVisitor<Void>{
 
 
     @Override
-    protected Void visitEquals(AST node) {
+    protected Integer visitEquals(AST node) {
         AST l = node.getChild(0);
 		AST r = node.getChild(1);
 
@@ -173,7 +176,7 @@ public class LLVMGenerator extends ASTBaseVisitor<Void>{
     }
 
     @Override
-    protected Void visitLess(AST node) {
+    protected Integer visitLess(AST node) {
         AST l = node.getChild(0);
 		AST r = node.getChild(1);
 
@@ -194,7 +197,7 @@ public class LLVMGenerator extends ASTBaseVisitor<Void>{
     }
 
     @Override
-    protected Void visitLessOrEquals(AST node) {
+    protected Integer visitLessOrEquals(AST node) {
         AST l = node.getChild(0);
 		AST r = node.getChild(1);
 
@@ -215,7 +218,7 @@ public class LLVMGenerator extends ASTBaseVisitor<Void>{
     }
 
     @Override
-    protected Void visitGreater(AST node) {
+    protected Integer visitGreater(AST node) {
         AST l = node.getChild(0);
 		AST r = node.getChild(1);
 
@@ -236,7 +239,7 @@ public class LLVMGenerator extends ASTBaseVisitor<Void>{
     }
 
     @Override
-    protected Void visitGreaterOrEquals(AST node) {
+    protected Integer visitGreaterOrEquals(AST node) {
         AST l = node.getChild(0);
 		AST r = node.getChild(1);
 
@@ -257,7 +260,7 @@ public class LLVMGenerator extends ASTBaseVisitor<Void>{
     }
 
     @Override
-	protected Void visitNotEquals(AST node) {
+	protected Integer visitNotEquals(AST node) {
 		AST l = node.getChild(0);
 		AST r = node.getChild(1);
 
@@ -282,7 +285,7 @@ public class LLVMGenerator extends ASTBaseVisitor<Void>{
 	 *------------------------------------------------------------------------------*/
 
     @Override
-    protected Void visitStar(AST node) {
+    protected Integer visitStar(AST node) {
         AST lNode = node.getChild(0);
 		AST rNode = node.getChild(1);
 
@@ -317,7 +320,7 @@ public class LLVMGenerator extends ASTBaseVisitor<Void>{
     }
 
     @Override
-    protected Void visitDiv(AST node) {
+    protected Integer visitDiv(AST node) {
         AST lNode = node.getChild(0);
 		AST rNode = node.getChild(1);
 
@@ -357,7 +360,7 @@ public class LLVMGenerator extends ASTBaseVisitor<Void>{
     }
 
     @Override
-    protected Void visitMod(AST node) {
+    protected Integer visitMod(AST node) {
         AST lNode = node.getChild(0);
 		AST rNode = node.getChild(1);
 
@@ -377,7 +380,7 @@ public class LLVMGenerator extends ASTBaseVisitor<Void>{
     }
 
     @Override
-    protected Void visitPlus(AST node) {
+    protected Integer visitPlus(AST node) {
         AST lNode = node.getChild(0);
 		AST rNode = node.getChild(1);
 
@@ -404,7 +407,7 @@ public class LLVMGenerator extends ASTBaseVisitor<Void>{
     }
 
     @Override
-    protected Void visitMinus(AST node) {
+    protected Integer visitMinus(AST node) {
         AST lNode = node.getChild(0);
 		AST rNode = node.getChild(1);
 
@@ -433,7 +436,7 @@ public class LLVMGenerator extends ASTBaseVisitor<Void>{
     
 
     @Override
-    protected Void visitStatementSection(AST node) {
+    protected Integer visitStatementSection(AST node) {
         for (AST child : node.getChildren()) {
 			visit(child);
 		}
@@ -441,7 +444,7 @@ public class LLVMGenerator extends ASTBaseVisitor<Void>{
     }
 
     @Override
-    protected Void visitReturn(AST node) {
+    protected Integer visitReturn(AST node) {
         // Checks if there is an expression node child
 		if (node.getChildren().size() == 1) {
 			// Visits the expression
@@ -452,7 +455,7 @@ public class LLVMGenerator extends ASTBaseVisitor<Void>{
     }
 
     @Override
-    protected Void visitVarDecl(AST node) {
+    protected Integer visitVarDecl(AST node) {
         // Checks if the variable was assigned a value at declaration
 		if(node.getChildren().size() > 0) {
 			// Visits the expression to push its value to the stack
@@ -464,16 +467,17 @@ public class LLVMGenerator extends ASTBaseVisitor<Void>{
 	
 			
 			if (varType == Type.FLOAT32_TYPE) {
-				/*  llvm code
+                buffer += "  %" + reg++ + " = alloca float, align 4\n";
+                buffer += "  store i32 0, i32* %1, align 4\n"; // TODO: Ver como vai colocar isso de verdade
+                /*  llvm code
                 %1 = alloca i32, align 4
                 %2 = alloca float, align 4
                 store i32 0, i32* %1, align 4
                 ret i32 0
                 */
 			} else {
-                buffer += "%" + reg++ + " = alloca i32, align 4\n";
-                buffer += "store i32 0, i32* %1, align 4\n"; // TODO: Ver como vai colocar isso de verdade
-				buffer += "store i32" + 1 + ", i32* %2, align 4\n";
+                buffer += "  %" + reg++ + " = alloca i32, align 4\n";
+                buffer += "  store i32 0, i32* %1, align 4\n"; // TODO: Ver como vai colocar isso de verdade
                 /* llvm code
                 %1 = alloca i32, align 4
                 %2 = alloca i32, align 4
@@ -487,7 +491,7 @@ public class LLVMGenerator extends ASTBaseVisitor<Void>{
     }
 
     @Override
-    protected Void visitAssign(AST node) {
+    protected Integer visitAssign(AST node) {
         // Visits the expression to push its value to the stack
 		visit(node.getChild(1));
 
@@ -496,7 +500,8 @@ public class LLVMGenerator extends ASTBaseVisitor<Void>{
 		Type varType = vt.getType(varIdx);
 
 	    if (varType == Type.FLOAT32_TYPE) {
-	       /*
+	        buffer += "  store i32 " + buffer_var_float + ", i32* %" + (varIdx +2) + ", align 4\n";
+            /*
             %1 = alloca i32, align 4
             %2 = alloca float, align 4
             store i32 0, i32* %1, align 4
@@ -504,6 +509,7 @@ public class LLVMGenerator extends ASTBaseVisitor<Void>{
             ret i32 0
            */
 	    } else {
+            buffer += "  store i32 " + buffer_var_int + ", i32* %" + (varIdx +2) + ", align 4\n";
 	        /*
             %1 = alloca i32, align 4
             %2 = alloca i32, align 4
@@ -517,7 +523,7 @@ public class LLVMGenerator extends ASTBaseVisitor<Void>{
     }
 
     @Override
-    protected Void visitPlusAssign(AST node) {
+    protected Integer visitPlusAssign(AST node) {
         // Visits the expression to push its value to the stack
 		visit(node.getChild(1));
 
@@ -553,7 +559,7 @@ public class LLVMGenerator extends ASTBaseVisitor<Void>{
     }
 
     @Override
-    protected Void visitMinusAssign(AST node) {
+    protected Integer visitMinusAssign(AST node) {
         // Visits the expression to push its value to the stack
 		visit(node.getChild(1));
 
@@ -588,7 +594,7 @@ public class LLVMGenerator extends ASTBaseVisitor<Void>{
     }
 
     @Override
-    protected Void visitPlusPlus(AST node) {
+    protected Integer visitPlusPlus(AST node) {
         // Visits the expression to push its value to the stack
 		visit(node.getChild(1));
 
@@ -623,7 +629,7 @@ public class LLVMGenerator extends ASTBaseVisitor<Void>{
     }
 
     @Override
-    protected Void visitMinusMinus(AST node) {
+    protected Integer visitMinusMinus(AST node) {
         // Visits the expression to push its value to the stack
 		visit(node.getChild(1));
 
@@ -658,13 +664,13 @@ public class LLVMGenerator extends ASTBaseVisitor<Void>{
     }
 
     @Override
-    protected Void visitIf(AST node) {
+    protected Integer visitIf(AST node) {
         // TODO Auto-generated method stub
         return null;
     }
 
     @Override
-    protected Void visitElse(AST node) {
+    protected Integer visitElse(AST node) {
         // Visits the statement section
 		visit(node.getChild(0));
 
@@ -672,19 +678,19 @@ public class LLVMGenerator extends ASTBaseVisitor<Void>{
     }
 
     @Override
-    protected Void visitWhile(AST node) {
+    protected Integer visitWhile(AST node) {
         // TODO Auto-generated method stub
         return null;
     }
 
     @Override
-    protected Void visitFor(AST node) {
+    protected Integer visitFor(AST node) {
         // TODO Auto-generated method stub
         return null;
     }
 
     @Override
-    protected Void visitFuncCall(AST node) {
+    protected Integer visitFuncCall(AST node) {
         return null;
     }
 
@@ -693,19 +699,19 @@ public class LLVMGenerator extends ASTBaseVisitor<Void>{
 	 *------------------------------------------------------------------------------*/
 
     @Override
-    protected Void visitFuncMain(AST node) {
+    protected Integer visitFuncMain(AST node) {
         visit(node.getChild(0));
 
 		return null; 
     }
 
     @Override
-    protected Void visitFuncDecl(AST node) {
+    protected Integer visitFuncDecl(AST node) {
         return null;
     }
 
     @Override
-    protected Void visitFuncArgs(AST node) {
+    protected Integer visitFuncArgs(AST node) {
         return null;
     }
 
@@ -714,12 +720,12 @@ public class LLVMGenerator extends ASTBaseVisitor<Void>{
 	 *------------------------------------------------------------------------------*/
 
     @Override
-    protected Void visitExpressionList(AST node) {
+    protected Integer visitExpressionList(AST node) {
         return null;
     }
 
     @Override
-    protected Void visitProgram(AST node) {
+    protected Integer visitProgram(AST node) {
         // Visits the function list node
 		visit(node.getChild(0));
 
@@ -728,7 +734,7 @@ public class LLVMGenerator extends ASTBaseVisitor<Void>{
     }
 
     @Override
-    protected Void visitFuncList(AST node) {
+    protected Integer visitFuncList(AST node) {
         for (AST child : node.getChildren()) {
 			visit(child);
 		}
@@ -736,7 +742,7 @@ public class LLVMGenerator extends ASTBaseVisitor<Void>{
     }
 
     @Override
-    protected Void visitVarUse(AST node) {
+    protected Integer visitVarUse(AST node) {
         int varIdx = node.intData;
 		if (node.type == Type.FLOAT32_TYPE) {
 			/** code llvm*/
