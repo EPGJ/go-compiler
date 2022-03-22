@@ -49,7 +49,7 @@ public class LLVMGenerator extends ASTBaseVisitor<Integer>{
         text += "\n";
         text += header_text;
         // text += "define i32 @main() nounwind {\n";
-        text += "define dso_local i32 @main() #0{\n  %1 = alloca i32, align 4\n";
+        text += "define dso_local i32 @main() #0{\n  %1 = alloca i32, align 4\n  store i32 0, i32* %1, align 4\n";
         text += buffer;
         text += "  ret i32 0\n";
         text += "}\n";
@@ -468,7 +468,10 @@ public class LLVMGenerator extends ASTBaseVisitor<Integer>{
 			
 			if (varType == Type.FLOAT32_TYPE) {
                 buffer += "  %" + reg++ + " = alloca float, align 4\n";
-                buffer += "  store i32 0, i32* %1, align 4\n"; // TODO: Ver como vai colocar isso de verdade
+                //buffer += "  store i32 0, i32* %1, align 4\n"; // TODO: Ver como vai colocar isso de verdade
+                if (buffer_var_float != 0) //Verifica se a declaração já possui o valor
+                    buffer += "  store float " + buffer_var_float + ", float* %" + (varIdx +2) + ", align 4\n";
+                
                 /*  llvm code
                 %1 = alloca i32, align 4
                 %2 = alloca float, align 4
@@ -477,7 +480,9 @@ public class LLVMGenerator extends ASTBaseVisitor<Integer>{
                 */
 			} else {
                 buffer += "  %" + reg++ + " = alloca i32, align 4\n";
-                buffer += "  store i32 0, i32* %1, align 4\n"; // TODO: Ver como vai colocar isso de verdade
+                //buffer += "  store i32 0, i32* %1, align 4\n"; // TODO: Ver como vai colocar isso de verdade
+                if (buffer_var_int != 0) //Verifica se a declaração já possui o valor
+                    buffer += "  store i32 " + buffer_var_int + ", i32* %" + (varIdx +2) + ", align 4\n";
                 /* llvm code
                 %1 = alloca i32, align 4
                 %2 = alloca i32, align 4
@@ -500,7 +505,7 @@ public class LLVMGenerator extends ASTBaseVisitor<Integer>{
 		Type varType = vt.getType(varIdx);
 
 	    if (varType == Type.FLOAT32_TYPE) {
-	        buffer += "  store i32 " + buffer_var_float + ", i32* %" + (varIdx +2) + ", align 4\n";
+	        buffer += "  store float " + buffer_var_float + ", float* %" + (varIdx +2) + ", align 4\n";
             /*
             %1 = alloca i32, align 4
             %2 = alloca float, align 4

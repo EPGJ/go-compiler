@@ -7,10 +7,11 @@ import "fmt"
  */
 func main() {
 
-	var add = 7
-
-	add = 8
-
+	var add = 8.0
+	var aux = 5
+	add = 6.5
+	aux = 9
+	var extra = 7.0
 
 	// var mult = 5 * 2
 	// var sub = 10 - 2
