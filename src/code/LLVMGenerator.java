@@ -17,6 +17,7 @@ public class LLVMGenerator extends ASTBaseVisitor<Integer>{
     private static String main_text = "";
     private static String buffer = "";
     private static int buffer_var_int =0;
+    private static int buffer_var_int_flag =1;
     private static float buffer_var_float = 0;
     private static int str_i = 0;
     private static int main_reg = 2;
@@ -69,7 +70,7 @@ public class LLVMGenerator extends ASTBaseVisitor<Integer>{
 
     @Override
     protected Integer visitBoolVal(AST node) {
-        buffer += node.intData;
+        // buffer += node.intData;
         return null;
     }
 
@@ -87,7 +88,7 @@ public class LLVMGenerator extends ASTBaseVisitor<Integer>{
 
     @Override
     protected Integer visitStringVal(AST node) {
-        buffer += node.intData;
+        // buffer += node.intData;
         return null;
     }
 
@@ -387,6 +388,9 @@ public class LLVMGenerator extends ASTBaseVisitor<Integer>{
 		visit(lNode);
 		visit(rNode);
 
+        int varIdxl = lNode.intData;
+        int varIdxr = rNode.intData;
+
 		// Emits the 'sum' for the corresponding type
 	    if (node.type == Type.FLOAT32_TYPE) {
 	        /* codigo llvm 
@@ -396,12 +400,10 @@ public class LLVMGenerator extends ASTBaseVisitor<Integer>{
             store float %7, float* %3, align 4
             */
 	    } else {
-	        /* codigo llvm 
-            %5 = load i32, i32* %4, align 4
-            %6 = load i32, i32* %2, align 4
-            %7 = add nsw i32 %5, %6
-            store i32 %7, i32* %3, align 4
-            */
+            buffer+= "  %" + reg++ + " = load i32, i32* %" + (varIdxl + 2) + ", align 4\n"; 
+            buffer+= "  %" + reg++ + " = load i32, i32* %" + (varIdxr + 2) + ", align 4\n";
+            buffer+= "  %" + reg++ + " = add nsw i32 %"+ (varIdxl + 2) + ", %"+ (varIdxr + 2)+"\n";
+            buffer_var_int_flag = 2;
 	    }
         return null;
     }
@@ -472,23 +474,12 @@ public class LLVMGenerator extends ASTBaseVisitor<Integer>{
                 if (buffer_var_float != 0) //Verifica se a declaração já possui o valor
                     buffer += "  store float " + buffer_var_float + ", float* %" + (varIdx +2) + ", align 4\n";
                 
-                /*  llvm code
-                %1 = alloca i32, align 4
-                %2 = alloca float, align 4
-                store i32 0, i32* %1, align 4
-                ret i32 0
-                */
+
 			} else {
                 buffer += "  %" + reg++ + " = alloca i32, align 4\n";
                 //buffer += "  store i32 0, i32* %1, align 4\n"; // TODO: Ver como vai colocar isso de verdade
                 if (buffer_var_int != 0) //Verifica se a declaração já possui o valor
                     buffer += "  store i32 " + buffer_var_int + ", i32* %" + (varIdx +2) + ", align 4\n";
-                /* llvm code
-                %1 = alloca i32, align 4
-                %2 = alloca i32, align 4
-                store i32 0, i32* %1, align 4
-                ret i32 0
-                */
 			}
 		}
 
@@ -506,22 +497,14 @@ public class LLVMGenerator extends ASTBaseVisitor<Integer>{
 
 	    if (varType == Type.FLOAT32_TYPE) {
 	        buffer += "  store float " + buffer_var_float + ", float* %" + (varIdx +2) + ", align 4\n";
-            /*
-            %1 = alloca i32, align 4
-            %2 = alloca float, align 4
-            store i32 0, i32* %1, align 4
-            store float 1.000000e+00, float* %2, align 4
-            ret i32 0
-           */
 	    } else {
-            buffer += "  store i32 " + buffer_var_int + ", i32* %" + (varIdx +2) + ", align 4\n";
-	        /*
-            %1 = alloca i32, align 4
-            %2 = alloca i32, align 4
-            store i32 0, i32* %1, align 4
-            store i32 1, i32* %2, align 4
-            ret i32 0
-            */
+            if(buffer_var_int_flag == 2){
+                buffer += "  store i32 %" + (reg - 1) + ", i32* %" + (varIdx +2) + ", align 4\n";
+                buffer_var_int_flag = 1;
+            }   
+            else{
+                buffer += "  store i32 " + buffer_var_int + ", i32* %" + (varIdx +2) + ", align 4\n";
+            }
 	    }
 
         return null;
