@@ -1,6 +1,5 @@
 package code;
 
-import java.math.BigDecimal;
 import java.util.Scanner;
 import java.util.Stack;
 
@@ -20,6 +19,7 @@ public class LLVMGenerator extends ASTBaseVisitor<Integer>{
     private static int buffer_var_int =0;
     private static int buffer_var_int_flag =1;
     private static float buffer_var_float = 0;
+    private static int buffer_var_float_flag =1;
     private static int str_i = 0;
     private static int main_reg = 2;
     private static int br = 0;
@@ -68,95 +68,6 @@ public class LLVMGenerator extends ASTBaseVisitor<Integer>{
         }
         main_text = sb.toString();
     }
-
-
-    @Override
-    protected Integer visitPlus(AST node) {
-        AST lNode = node.getChild(0);
-		AST rNode = node.getChild(1);
-
-		visit(lNode);
-		visit(rNode);
-
-        int varIdxl = lNode.intData;
-        int varIdxr = rNode.intData;
-
-		// Emits the 'sum' for the corresponding type
-	    if (node.type == Type.FLOAT32_TYPE) {
-	        /* codigo llvm 
-            %5 = load float, float* %4, align 4
-            %6 = load float, float* %2, align 4
-            %7 = fadd float %5, %6
-            store float %7, float* %3, align 4
-            */
-	    } else {
-            buffer+= "  %" + reg++ + " = load i32, i32* %" + (varIdxl + 2) + ", align 4\n"; 
-            buffer+= "  %" + reg++ + " = load i32, i32* %" + (varIdxr + 2) + ", align 4\n";
-            buffer+= "  %" + reg++ + " = add nsw i32 %"+ (varIdxl + 2) + ", %"+ (varIdxr + 2)+"\n";
-            buffer_var_int_flag = 2;
-	    }
-        return null;
-    }
-
-
-    @Override
-    protected Integer visitVarDecl(AST node) {
-        // Checks if the variable was assigned a value at declaration
-		if(node.getChildren().size() > 0) {
-			// Visits the expression to push its value to the stack
-			visit(node.getChild(0));
-	
-			// Get the var index and type 
-			int varIdx = node.intData;
-			Type varType = vt.getType(varIdx);
-	
-			
-			if (varType == Type.FLOAT32_TYPE) {
-                buffer += "  %" + reg++ + " = alloca float, align 4\n";
-                //buffer += "  store i32 0, i32* %1, align 4\n"; // TODO: Ver como vai colocar isso de verdade
-
-                BigDecimal float_value = new BigDecimal(Float.toString(buffer_var_float));
-
-                if (buffer_var_float != 0){ //Verifica se a declaração já possui o valor
-                    buffer += "  store float " + float_value + ", float* %" + (varIdx +2) + ", align 4\n";
-                }
-                
-
-			} else {
-                buffer += "  %" + reg++ + " = alloca i32, align 4\n";
-                //buffer += "  store i32 0, i32* %1, align 4\n"; // TODO: Ver como vai colocar isso de verdade
-                if (buffer_var_int != 0) //Verifica se a declaração já possui o valor
-                    buffer += "  store i32 " + buffer_var_int + ", i32* %" + (varIdx +2) + ", align 4\n";
-			}
-		}
-
-		return null;
-    }
-
-    @Override
-    protected Integer visitAssign(AST node) {
-        // Visits the expression to push its value to the stack
-		visit(node.getChild(1));
-
-		// Get the var index and type 
-		int varIdx = node.getChild(0).intData;
-		Type varType = vt.getType(varIdx);
-
-	    if (varType == Type.FLOAT32_TYPE) {
-	        buffer += "  store float " + buffer_var_float + ", float* %" + (varIdx +2) + ", align 4\n";
-	    } else {
-            if(buffer_var_int_flag == 2){
-                buffer += "  store i32 %" + (reg - 1) + ", i32* %" + (varIdx +2) + ", align 4\n";
-                buffer_var_int_flag = 1;
-            }   
-            else{
-                buffer += "  store i32 " + buffer_var_int + ", i32* %" + (varIdx +2) + ", align 4\n";
-            }
-	    }
-
-        return null;
-    }
-
 
     @Override
     protected Integer visitBoolVal(AST node) {
@@ -470,7 +381,32 @@ public class LLVMGenerator extends ASTBaseVisitor<Integer>{
         return null;
     }
 
-   
+    @Override
+    protected Integer visitPlus(AST node) {
+        AST lNode = node.getChild(0);
+		AST rNode = node.getChild(1);
+
+		visit(lNode);
+		visit(rNode);
+
+        int varIdxl = lNode.intData;
+        int varIdxr = rNode.intData;
+
+		// Emits the 'sum' for the corresponding type
+	    if (node.type == Type.FLOAT32_TYPE) {
+            buffer+= "  %" + reg++ + " = load float, float* %" + (varIdxl + 2) + ", align 4\n"; 
+            buffer+= "  %" + reg++ + " = load float, float* %" + (varIdxr + 2) + ", align 4\n";
+            buffer+= "  %" + reg++ + " = fadd float %"+ (reg - 3) + ", %"+ (reg - 2)+"\n";
+            buffer_var_float_flag = 2;
+	    } else {
+            buffer+= "  %" + reg++ + " = load i32, i32* %" + (varIdxl + 2) + ", align 4\n"; 
+            buffer+= "  %" + reg++ + " = load i32, i32* %" + (varIdxr + 2) + ", align 4\n";
+            //buffer+= "  %" + reg++ + " = add nsw i32 %"+ (varIdxl + 2) + ", %"+ (varIdxr + 2)+"\n";
+            buffer+= "  %" + reg++ + " = add nsw i32 %"+ (reg - 3) + ", %"+ (reg - 2)+"\n";
+            buffer_var_int_flag = 2;
+	    }
+        return null;
+    }
 
     @Override
     protected Integer visitMinus(AST node) {
@@ -520,7 +456,63 @@ public class LLVMGenerator extends ASTBaseVisitor<Integer>{
 		return null; 
     }
 
-    
+    @Override
+    protected Integer visitVarDecl(AST node) {
+        // Checks if the variable was assigned a value at declaration
+		if(node.getChildren().size() > 0) {
+			// Visits the expression to push its value to the stack
+			visit(node.getChild(0));
+	
+			// Get the var index and type 
+			int varIdx = node.intData;
+			Type varType = vt.getType(varIdx);
+	
+			
+			if (varType == Type.FLOAT32_TYPE) {
+                buffer += "  %" + reg++ + " = alloca float, align 4\n";
+                if (buffer_var_float != 0) //Verifica se a declaração já possui o valor
+                    buffer += "  store float " + floatToLLVM(buffer_var_float) + ", float* %" + (varIdx +2) + ", align 4\n";
+                
+
+			} else {
+                buffer += "  %" + reg++ + " = alloca i32, align 4\n";
+                if (buffer_var_int != 0) //Verifica se a declaração já possui o valor
+                    buffer += "  store i32 " + buffer_var_int + ", i32* %" + (varIdx +2) + ", align 4\n";
+			}
+		}
+
+		return null;
+    }
+
+    @Override
+    protected Integer visitAssign(AST node) {
+        // Visits the expression to push its value to the stack
+		visit(node.getChild(1));
+
+		// Get the var index and type 
+		int varIdx = node.getChild(0).intData;
+		Type varType = vt.getType(varIdx);
+
+	    if (varType == Type.FLOAT32_TYPE) {
+            if(buffer_var_float_flag == 2){
+	            buffer += "  store float %" + (reg - 1) + ", float* %" + (varIdx +2) + ", align 4\n";
+                buffer_var_float_flag = 1;    
+            }
+            else{
+                buffer += "  store float " + floatToLLVM(buffer_var_float) + ", float* %" + (varIdx +2) + ", align 4\n";
+            }
+	    } else {
+            if(buffer_var_int_flag == 2){
+                buffer += "  store i32 %" + (reg - 1) + ", i32* %" + (varIdx +2) + ", align 4\n";
+                buffer_var_int_flag = 1;
+            }   
+            else{
+                buffer += "  store i32 " + buffer_var_int + ", i32* %" + (varIdx +2) + ", align 4\n";
+            }
+	    }
+
+        return null;
+    }
 
     @Override
     protected Integer visitPlusAssign(AST node) {
@@ -752,4 +744,34 @@ public class LLVMGenerator extends ASTBaseVisitor<Integer>{
 		return null; 
     }
     
+    /*------------------------------------------------------------------------------*
+	 *	Aux Functions
+	 *------------------------------------------------------------------------------*/
+    public String floatToLLVM(float f) {
+		return "0x" + toHexString(Double.doubleToRawLongBits((double) f));
+	}
+	
+	public String doubleToLLVM(double d) {
+		return "0x" + toHexString(Double.doubleToRawLongBits(d));
+	}
+	
+	private String toHexString(long l) {
+		int count = (l == 0L) ? 1 : ((64 - Long.numberOfLeadingZeros(l)) + 3) / 4;
+		StringBuilder buffer = new StringBuilder(count);
+		long k = l;
+		do {
+			long t = k & 15L;
+			if (t > 9) {
+				t = t - 10 + 'A';
+			} else {
+				t += '0';
+			}
+			count -= 1;
+			buffer.insert(0, (char) t);
+			k = k >> 4;
+		} while (count > 0);
+		return buffer.toString();
+	}	    
+
 }
+
