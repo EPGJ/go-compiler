@@ -7,9 +7,9 @@ import "fmt"
  */
 func main() {
 
-	var add = 8 
-	var add2 = 2
-	var add3 = 5
+	var add = 8.0 
+	var add2 = 2.1
+	var add3 = 5.6
 	add3 = add + add2
 	// var aux = 5
 	// add = 6.5
