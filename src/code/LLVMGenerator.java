@@ -17,7 +17,7 @@ public class LLVMGenerator extends ASTBaseVisitor<Void>{
     private static String main_text = "";
     private static String buffer = "";
     private static int str_i = 0;
-    private static int main_reg = 1;
+    private static int main_reg = 2;
     private static int br = 0;
     private final StrTable st;
 	private final VarTable vt;
@@ -33,20 +33,22 @@ public class LLVMGenerator extends ASTBaseVisitor<Void>{
 
     @Override 
     public void execute(AST root) {
+        visit(root);
         main_text += buffer;
         formatMainText();
         String text = "";
-        text += "declare i32 @printf(i8*, ...)\n";
-        text += "declare i32 @scanf(i8*, ...)\n";
-        text += "@strpi = constant [4 x i8] c\"%d\\0A\\00\"\n";
-        text += "@strpd = constant [4 x i8] c\"%f\\0A\\00\"\n";
-        text += "@strps = constant [4 x i8] c\"%s\\0A\\00\"\n";
-        text += "@strsi = constant [3 x i8] c\"%d\\00\"\n";
-        text += "@strsd = constant [4 x i8] c\"%lf\\00\"\n";
+        // text += "declare i32 @printf(i8*, ...)\n";
+        // text += "declare i32 @scanf(i8*, ...)\n";
+        // text += "@strpi = constant [4 x i8] c\"%d\\0A\\00\"\n";
+        // text += "@strpd = constant [4 x i8] c\"%f\\0A\\00\"\n";
+        // text += "@strps = constant [4 x i8] c\"%s\\0A\\00\"\n";
+        // text += "@strsi = constant [3 x i8] c\"%d\\00\"\n";
+        // text += "@strsd = constant [4 x i8] c\"%lf\\00\"\n";
         text += "\n";
         text += header_text;
-        text += "define i32 @main() nounwind {\n";
-        text += main_text;
+        // text += "define i32 @main() nounwind {\n";
+        text += "define dso_local i32 @main() #0{\n  %1 = alloca i32, align 4\n";
+        text += buffer;
         text += "  ret i32 0\n";
         text += "}\n";
         System.out.println(text);
@@ -460,7 +462,7 @@ public class LLVMGenerator extends ASTBaseVisitor<Void>{
 			int varIdx = node.intData;
 			Type varType = vt.getType(varIdx);
 	
-			// Emits the 'store word' for the corresponding type
+			
 			if (varType == Type.FLOAT32_TYPE) {
 				/*  llvm code
                 %1 = alloca i32, align 4
@@ -469,7 +471,10 @@ public class LLVMGenerator extends ASTBaseVisitor<Void>{
                 ret i32 0
                 */
 			} else {
-				/* llvm code
+                buffer += "%" + reg++ + " = alloca i32, align 4\n";
+                buffer += "store i32 0, i32* %1, align 4\n"; // TODO: Ver como vai colocar isso de verdade
+				buffer += "store i32" + 1 + ", i32* %2, align 4\n";
+                /* llvm code
                 %1 = alloca i32, align 4
                 %2 = alloca i32, align 4
                 store i32 0, i32* %1, align 4
