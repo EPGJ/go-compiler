@@ -8,10 +8,26 @@ import "fmt"
 func main() {
 
 	//int
-	var add = 3.8
-	var add2 = 1.0
-	add = add + add2
+	// var add = 3
+	// var add2 = 2
+	// var add3 = 5
+	// add3 = add * add2
+
+	// =================
+	// var add1 = 0
+	// var add2 = 1
+
+	// add1 += add2
+
+	//======
+
+	var add1 = 1
+	add1++
 	
+
+
+
+
 	//float
 	// var add = 3.3
 	// var add2 = 2.2

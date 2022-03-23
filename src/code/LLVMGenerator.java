@@ -41,16 +41,8 @@ public class LLVMGenerator extends ASTBaseVisitor<Integer>{
         main_text += buffer;
         formatMainText();
         String text = "";
-        // text += "declare i32 @printf(i8*, ...)\n";
-        // text += "declare i32 @scanf(i8*, ...)\n";
-        // text += "@strpi = constant [4 x i8] c\"%d\\0A\\00\"\n";
-        // text += "@strpd = constant [4 x i8] c\"%f\\0A\\00\"\n";
-        // text += "@strps = constant [4 x i8] c\"%s\\0A\\00\"\n";
-        // text += "@strsi = constant [3 x i8] c\"%d\\00\"\n";
-        // text += "@strsd = constant [4 x i8] c\"%lf\\00\"\n";
         text += "\n";
         text += header_text;
-        // text += "define i32 @main() nounwind {\n";
         text += "define dso_local i32 @main() #0{\n  %1 = alloca i32, align 4\n  store i32 0, i32* %1, align 4\n";
         text += buffer;
         text += "  ret i32 0\n";
@@ -294,29 +286,20 @@ public class LLVMGenerator extends ASTBaseVisitor<Integer>{
 		visit(lNode);
 		visit(rNode);
 
+        int varIdxl = lNode.intData;
+        int varIdxr = rNode.intData;
+
 		// Emits the 'multiply' for the corresponding type
-	    if (node.type == Type.FLOAT32_TYPE) {
-
-            buffer+= "%" + reg++ +"= load float, float* %" + (reg - 3) +", align 4\n";
-			buffer+= "%" + reg++ +"= load float, float* %" + (reg - 3) +", align 4\n";
-			buffer+= "%" + reg++ +"= fmul float %" + (reg - 3) +", %" + (reg - 2) + "\n";
-			
-            /* codigo llvm 
-            %4 = load float, float* %2, align 4
-            %5 = load float, float* %3, align 4
-            %6 = fmul float %4, %5
-            */
+        if (node.type == Type.FLOAT32_TYPE) {
+            buffer+= "  %" + reg++ + " = load float, float* %" + (varIdxl + 2) + ", align 4\n"; 
+            buffer+= "  %" + reg++ + " = load float, float* %" + (varIdxr + 2) + ", align 4\n";
+            buffer+= "  %" + reg++ + " = fmul float %"+ (reg - 3) + ", %"+ (reg - 2)+"\n";
+            buffer_var_float_flag = 2;
 	    } else {
-
-            buffer+= "%" + reg++ +"= load i32, i32* %" + (reg - 3) +", align 4\n";
-			buffer+= "%" + reg++ +"= load i32, i32* %" + (reg - 3) +", align 4\n";
-			buffer+= "%" + reg++ +" mul nsw i32 %" + (reg - 3) +", %" + (reg - 2) + "\n";
-
-	        /* codigo llvm 
-                %4 = load i32, i32* %2, align 4
-                %5 = load i32, i32* %3, align 4
-                %6 = mul nsw i32 %4, %5
-            */
+            buffer+= "  %" + reg++ + " = load i32, i32* %" + (varIdxl + 2) + ", align 4\n"; 
+            buffer+= "  %" + reg++ + " = load i32, i32* %" + (varIdxr + 2) + ", align 4\n";
+            buffer+= "  %" + reg++ + " = mul nsw i32 %"+ (reg - 3) + ", %"+ (reg - 2)+"\n";
+            buffer_var_int_flag = 2;
 	    }
         return null;
     }
@@ -329,35 +312,21 @@ public class LLVMGenerator extends ASTBaseVisitor<Integer>{
 		visit(lNode);
 		visit(rNode);
 
+        int varIdxl = lNode.intData;
+        int varIdxr = rNode.intData;
+
 		// Emits the 'div' for the corresponding type
-	    if (node.type == Type.FLOAT32_TYPE) {
-            buffer+= "%" + reg++ +"= load float, float* %" + (reg - 2) +", align 4\n";
-			buffer+= "%" + reg++ +"= load i32, i32* %" + (reg - 5) +", align 4\n";
-            buffer+= "%" + reg++ +"= sitofp i32 %" + (reg - 2) +" to float\n";
-			buffer+= "%" + reg++ +"= fdiv float %" + (reg - 4) +", %" + (reg - 2) + "\n";
-			buffer+= "store float %" + (reg - 1) +", float %" + (reg - 6) + ", align 4\n";
-
-	        /* codigo llvm 
-            %5 = load float, float* %4, align 4
-            %6 = load i32, i32* %2, align 4
-            %7 = sitofp i32 %6 to float
-            %8 = fdiv float %5, %7
-            store float %8, float* %3, align 4
-            */
+        if (node.type == Type.FLOAT32_TYPE) {
+            buffer+= "  %" + reg++ + " = load float, float* %" + (varIdxl + 2) + ", align 4\n"; 
+            buffer+= "  %" + reg++ + " = load float, float* %" + (varIdxr + 2) + ", align 4\n";
+            buffer+= "  %" + reg++ + " = fdiv float %"+ (reg - 3) + ", %"+ (reg - 2)+"\n";
+            buffer_var_float_flag = 2;
 	    } else {
-            buffer+= "%" + reg++ +"= load i32, i32* %" + (reg - 2) +", align 4\n";
-			buffer+= "%" + reg++ +"= load i32, i32* %" + (reg - 5) +", align 4\n";
-			buffer+= "%" + reg++ +"= sdiv i32 %" + (reg - 3) +", %" + (reg - 2) + "\n";
-			buffer+= "store i32 %" + (reg - 1) +", i32 %" + (reg - 5) + ", align 4\n";
-            
-	        /* codigo llvm 
-            %5 = load i32, i32* %4, align 4
-            %6 = load i32, i32* %2, align 4
-            %7 = sdiv i32 %5, %6
-            store i32 %7, i32* %3, align 4
-            */
+            buffer+= "  %" + reg++ + " = load i32, i32* %" + (varIdxl + 2) + ", align 4\n"; 
+            buffer+= "  %" + reg++ + " = load i32, i32* %" + (varIdxr + 2) + ", align 4\n";
+            buffer+= "  %" + reg++ + " = sdiv i32 %"+ (reg - 3) + ", %"+ (reg - 2)+"\n";
+            buffer_var_int_flag = 2;
 	    }
-
         return null;
     }
 
@@ -369,14 +338,15 @@ public class LLVMGenerator extends ASTBaseVisitor<Integer>{
 		visit(lNode);
 		visit(rNode);
 
-		// Emits the 'mod' for the corresponding type
+        int varIdxl = lNode.intData;
+        int varIdxr = rNode.intData;
 
-        /* codigo llvm 
-        %5 = load i32, i32* %4, align 4
-        %6 = load i32, i32* %2, align 4
-        %7 = srem i32 %5, %6
-        store i32 %7, i32* %3, align 4
-        */
+		
+        buffer+= "  %" + reg++ + " = load i32, i32* %" + (varIdxl + 2) + ", align 4\n"; 
+        buffer+= "  %" + reg++ + " = load i32, i32* %" + (varIdxr + 2) + ", align 4\n";
+        buffer+= "  %" + reg++ + " = mul nsw i32 %"+ (reg - 3) + ", %"+ (reg - 2)+"\n";
+        buffer_var_int_flag = 2;
+	    
 	    
         return null;
     }
@@ -401,7 +371,6 @@ public class LLVMGenerator extends ASTBaseVisitor<Integer>{
 	    } else {
             buffer+= "  %" + reg++ + " = load i32, i32* %" + (varIdxl + 2) + ", align 4\n"; 
             buffer+= "  %" + reg++ + " = load i32, i32* %" + (varIdxr + 2) + ", align 4\n";
-            //buffer+= "  %" + reg++ + " = add nsw i32 %"+ (varIdxl + 2) + ", %"+ (varIdxr + 2)+"\n";
             buffer+= "  %" + reg++ + " = add nsw i32 %"+ (reg - 3) + ", %"+ (reg - 2)+"\n";
             buffer_var_int_flag = 2;
 	    }
@@ -416,23 +385,23 @@ public class LLVMGenerator extends ASTBaseVisitor<Integer>{
 		visit(lNode);
 		visit(rNode);
 
-		// Emits the 'minus' for the corresponding type
+        int varIdxl = lNode.intData;
+        int varIdxr = rNode.intData;
+
+		// Emits the 'sum' for the corresponding type
 	    if (node.type == Type.FLOAT32_TYPE) {
-	        /* codigo llvm 
-            %5 = load float, float* %4, align 4
-            %6 = load float, float* %2, align 4
-            %7 = fsub float %5, %6
-            store float %7, float* %3, align 4
-            */
+            buffer+= "  %" + reg++ + " = load float, float* %" + (varIdxl + 2) + ", align 4\n"; 
+            buffer+= "  %" + reg++ + " = load float, float* %" + (varIdxr + 2) + ", align 4\n";
+            buffer+= "  %" + reg++ + " = fsub float %"+ (reg - 3) + ", %"+ (reg - 2)+"\n";
+            buffer_var_float_flag = 2;
 	    } else {
-	        /* codigo llvm 
-            %5 = load i32, i32* %4, align 4
-            %6 = load i32, i32* %2, align 4
-            %7 = sub nsw i32 %5, %6
-            store i32 %7, i32* %3, align 4
-            */
+            buffer+= "  %" + reg++ + " = load i32, i32* %" + (varIdxl + 2) + ", align 4\n"; 
+            buffer+= "  %" + reg++ + " = load i32, i32* %" + (varIdxr + 2) + ", align 4\n";
+            buffer+= "  %" + reg++ + " = sub nsw i32 %"+ (reg - 3) + ", %"+ (reg - 2)+"\n";
+            buffer_var_int_flag = 2;
 	    }
         return null;
+
     }
 
     
@@ -524,27 +493,13 @@ public class LLVMGenerator extends ASTBaseVisitor<Integer>{
 		Type varType = vt.getType(varIdx);
 
 		if (varType == Type.FLOAT32_TYPE) {
-			/*
-            %1 = alloca i32, align 4
-            %2 = alloca float, align 4
-            store i32 0, i32* %1, align 4
-            store float 1.000000e+00, float* %2, align 4
-            %3 = load float, float* %2, align 4
-            %4 = fadd float %3, 2.000000e+00
-            store float %4, float* %2, align 4
-            ret i32 0
-            */
+            
+
 	    } else {
-			/*
-            %1 = alloca i32, align 4
-            %2 = alloca i32, align 4
-            store i32 0, i32* %1, align 4
-            store i32 1, i32* %2, align 4
-            %3 = load i32, i32* %2, align 4
-            %4 = add nsw i32 %3, 2
-            store i32 %4, i32* %2, align 4
-            ret i32 0
-            */
+            // buffer+= "  %" + reg++ + " = load i32, i32* %" + (varIdx + 2) + ", align 4\n"; 
+            // buffer+= "  %" + reg++ + " = load i32, i32* %" + (varIdx + 1) + ", align 4\n";
+            // buffer+= "  %" + reg++ + " = add nsw i32 %"+ (reg - 3) + ", %"+ (reg - 2)+"\n";
+            // buffer_var_int_flag = 2;
 	    }
 
 		return null;
@@ -559,30 +514,20 @@ public class LLVMGenerator extends ASTBaseVisitor<Integer>{
 		int varIdx = node.getChild(0).intData;
 		Type varType = vt.getType(varIdx);
 
-		if (varType == Type.FLOAT32_TYPE) {
-			/*
-            %1 = alloca i32, align 4
-            %2 = alloca float, align 4
-            store i32 0, i32* %1, align 4
-            store float 1.000000e+00, float* %2, align 4
-            %3 = load float, float* %2, align 4
-            %4 = fsub float %3, 2.000000e+00
-            store float %4, float* %2, align 4
-            ret i32 0
-            */
+		// Emits the 'sub' for the corresponding type
+	    if (node.type == Type.FLOAT32_TYPE) {
+            buffer+= "  %" + reg++ + " = load float, float* %" + (varIdx + 2) + ", align 4\n"; 
+            buffer+= "  %" + reg++ + " = load float, float* %" + (varIdx + 2) + ", align 4\n";
+            buffer+= "  %" + reg++ + " = fsub float %"+ (reg - 3) + ", %"+ (reg - 2)+"\n";
+            buffer_var_float_flag = 2;
 	    } else {
-			/*
-            %1 = alloca i32, align 4
-            %2 = alloca i32, align 4
-            store i32 0, i32* %1, align 4
-            store i32 1, i32* %2, align 4
-            %3 = load i32, i32* %2, align 4
-            %4 = sub nsw i32 %3, 2
-            store i32 %4, i32* %2, align 4
-            ret i32 0
-            */
+            buffer+= "  %" + reg++ + " = load i32, i32* %" + (varIdx + 2) + ", align 4\n"; 
+            buffer+= "  %" + reg++ + " = load i32, i32* %" + (varIdx + 2) + ", align 4\n";
+            buffer+= "  %" + reg++ + " = sub nsw i32 %"+ (reg - 3) + ", %"+ (reg - 2)+"\n";
+            buffer_var_int_flag = 2;
 	    }
         return null;
+
     }
 
     @Override
@@ -606,16 +551,9 @@ public class LLVMGenerator extends ASTBaseVisitor<Integer>{
             ret i32 0
             */
 	    } else {
-			/*
-            %1 = alloca i32, align 4
-            %2 = alloca i32, align 4
-            store i32 0, i32* %1, align 4
-            store i32 1, i32* %2, align 4
-            %3 = load i32, i32* %2, align 4
-            %4 = add nsw i32 %3, 1
-            store i32 %4, i32* %2, align 4
-            ret i32 0
-            */
+			// buffer += "%" + reg++ + " = load i32, i32* %" + (varIdx +2) + ", align 4\n";
+            // buffer += "%" + reg++ + " = add nsw i32 %" + (reg-1) + ", 1";
+            // buffer += "store i32 %4, i32* %" + (varIdx +2) + ", align 4";
 	    }
         return null;
     }
