@@ -512,19 +512,19 @@ public class LLVMGenerator extends ASTBaseVisitor<Integer>{
     protected Integer visitPlusAssign(AST node) {
         // Visits the expression to push its value to the stack
 		visit(node.getChild(1));
-
+        System.out.println("\nvisitPlusAssign\n");
 		// Get the var index and type 
 		int varIdx = node.getChild(0).intData;
 		Type varType = vt.getType(varIdx);
 
 		if (varType == Type.FLOAT32_TYPE) {
-            
-
+            buffer+= "  %" + reg++ + " = load float, float* %" + (varIdx + 2) + ", align 4\n"; 
+            buffer+= "  %" + reg++ + " = fadd float %"+ (reg - 2) + ", "+ floatToLLVM(buffer_var_float)+"\n";
+            buffer+= "  store float %" + (reg - 1) + ", float* %" + (varIdx + 2) + ", align 4\n";
 	    } else {
-            // buffer+= "  %" + reg++ + " = load i32, i32* %" + (varIdx + 2) + ", align 4\n"; 
-            // buffer+= "  %" + reg++ + " = load i32, i32* %" + (varIdx + 1) + ", align 4\n";
-            // buffer+= "  %" + reg++ + " = add nsw i32 %"+ (reg - 3) + ", %"+ (reg - 2)+"\n";
-            // buffer_var_int_flag = 2;
+            buffer+= "  %" + reg++ + " = load i32, i32* %" + (varIdx + 2) + ", align 4\n"; 
+            buffer+= "  %" + reg++ + " = add nsw i32 %"+ (reg - 2) + ", "+ (buffer_var_int)+"\n";
+            buffer+= "  store i32 %" + (reg - 1) + ", i32* %" + (varIdx + 2) + ", align 4\n";
 	    }
 
 		return null;
@@ -561,7 +561,6 @@ public class LLVMGenerator extends ASTBaseVisitor<Integer>{
     protected Integer visitPlusPlus(AST node) {
         // Visits the expression to push its value to the stack
 		visit(node.getChild(1));
-
 		// Get the var index and type 
 		int varIdx = node.getChild(0).intData;
 		Type varType = vt.getType(varIdx);
