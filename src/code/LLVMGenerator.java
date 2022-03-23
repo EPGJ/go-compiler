@@ -165,12 +165,28 @@ public class LLVMGenerator extends ASTBaseVisitor<Integer>{
 			case INT_TYPE:	
                     buffer+= "  %" + reg++ + " = load i32, i32* %" + (varIdxl + 2) + ", align 4\n"; 
                     buffer+= "  %" + reg++ + " = load i32, i32* %" + (varIdxr + 2) + ", align 4\n";
-                    buffer+= "  %" + reg++ + " = icmp ne i32 %"+ (reg - 3) + ", %"+ (reg - 2)+"\n";
+                    buffer+= "  %" + reg++ + " = icmp eq i32 %"+ (reg - 3) + ", %"+ (reg - 2)+"\n";
                     buffer+= "  %" + reg++ + " = zext i1 %"+ (reg - 2) + " to i8\n";
                     buffer_var_bool_flag = 2;
                 break;
-			case FLOAT32_TYPE:		/*codigo llvm icmp */	break;
-			case BOOL_TYPE:			/*codigo llvm icmp */	break;
+			case FLOAT32_TYPE:		
+            	    buffer+= "  %" + reg++ + " = load float, float* %" + (varIdxl + 2) + ", align 4\n"; 
+                    buffer+= "  %" + reg++ + " = load float, float* %" + (varIdxr + 2) + ", align 4\n";
+                    buffer+= "  %" + reg++ + " = fcmp oeq float %"+ (reg - 3) + ", %"+ (reg - 2)+"\n";
+                    buffer+= "  %" + reg++ + " = zext i1 %"+ (reg - 2) + " to i8\n";
+                    buffer_var_bool_flag = 2;
+                break;
+			case BOOL_TYPE:
+            	    buffer+= "  %" + reg++ + " = load i8, i8* %" + (varIdxl + 2) + ", align 1\n";
+                    buffer+= "  %" + reg++ + " = trunc i8 %"+ (reg - 2) + " to i1\n"; 
+                    buffer+= "  %" + reg++ + " = zext i1 %"+ (reg - 2) + " to i32\n";
+                    buffer+= "  %" + reg++ + " = load i8, i8* %" + (varIdxr + 2) + ", align 1\n";
+                    buffer+= "  %" + reg++ + " = trunc i8 %"+ (reg - 2) + " to i1\n"; 
+                    buffer+= "  %" + reg++ + " = zext i1 %"+ (reg - 2) + " to i32\n";
+                    buffer+= "  %" + reg++ + " = icmp eq i32 %"+ (reg - 5) + ", %"+ (reg - 2)+"\n";
+                    buffer+= "  %" + reg++ + " = zext i1 %"+ (reg - 2) + " to i8\n";
+                    buffer_var_bool_flag = 2;
+                break;
 			case STRING_TYPE:		/*codigo llvm icmp */	break;
 			default:
 				System.err.printf("Invalid type: %s!\n", l.type.toString());
@@ -230,10 +246,29 @@ public class LLVMGenerator extends ASTBaseVisitor<Integer>{
 		visit(l);
 		visit(r);
 
+
+		int varIdxl = l.intData;
+        int varIdxr = r.intData;
+
+		// Emits the 'greater than' for the corresponding type
 		switch (l.type) {
-			case INT_TYPE:			/*codigo llvm sgt */	break;
-			case FLOAT32_TYPE:		/*codigo llvm sgt */	break;
-			case BOOL_TYPE:			/*codigo llvm sgt */	break;
+			case INT_TYPE:	
+                    buffer+= "  %" + reg++ + " = load i32, i32* %" + (varIdxl + 2) + ", align 4\n"; 
+                    buffer+= "  %" + reg++ + " = load i32, i32* %" + (varIdxr + 2) + ", align 4\n";
+                    buffer+= "  %" + reg++ + " = icmp sgt i32 %"+ (reg - 3) + ", %"+ (reg - 2)+"\n";
+                    buffer+= "  %" + reg++ + " = zext i1 %"+ (reg - 2) + " to i8\n";
+                    buffer_var_bool_flag = 2;
+                break;
+			case FLOAT32_TYPE:		
+            	    buffer+= "  %" + reg++ + " = load float, float* %" + (varIdxl + 2) + ", align 4\n"; 
+                    buffer+= "  %" + reg++ + " = load float, float* %" + (varIdxr + 2) + ", align 4\n";
+                    buffer+= "  %" + reg++ + " = fcmp ogt float %"+ (reg - 3) + ", %"+ (reg - 2)+"\n";
+                    buffer+= "  %" + reg++ + " = zext i1 %"+ (reg - 2) + " to i8\n";
+                    buffer_var_bool_flag = 2;
+                break;
+			case BOOL_TYPE:
+                //Existe comparação de bool?
+                break;
 			case STRING_TYPE:		/*codigo llvm sgt */	break;
 			default:
 				System.err.printf("Invalid type: %s!\n", l.type.toString());
@@ -272,10 +307,36 @@ public class LLVMGenerator extends ASTBaseVisitor<Integer>{
 		visit(l);
 		visit(r);
 
+        int varIdxl = l.intData;
+        int varIdxr = r.intData;
+
+		// Emits the 'not equals operation' for the corresponding type
 		switch (l.type) {
-			case INT_TYPE:			/*codigo llvm ne */	break;
-			case FLOAT32_TYPE:		/*codigo llvm ne */	break;
-			case BOOL_TYPE:			/*codigo llvm ne */	break;
+			case INT_TYPE:	
+                    buffer+= "  %" + reg++ + " = load i32, i32* %" + (varIdxl + 2) + ", align 4\n"; 
+                    buffer+= "  %" + reg++ + " = load i32, i32* %" + (varIdxr + 2) + ", align 4\n";
+                    buffer+= "  %" + reg++ + " = icmp ne i32 %"+ (reg - 3) + ", %"+ (reg - 2)+"\n";
+                    buffer+= "  %" + reg++ + " = zext i1 %"+ (reg - 2) + " to i8\n";
+                    buffer_var_bool_flag = 2;
+                break;
+			case FLOAT32_TYPE:		
+            	    buffer+= "  %" + reg++ + " = load float, float* %" + (varIdxl + 2) + ", align 4\n"; 
+                    buffer+= "  %" + reg++ + " = load float, float* %" + (varIdxr + 2) + ", align 4\n";
+                    buffer+= "  %" + reg++ + " = fcmp une float %"+ (reg - 3) + ", %"+ (reg - 2)+"\n";
+                    buffer+= "  %" + reg++ + " = zext i1 %"+ (reg - 2) + " to i8\n";
+                    buffer_var_bool_flag = 2;
+                break;
+			case BOOL_TYPE:
+            	    buffer+= "  %" + reg++ + " = load i8, i8* %" + (varIdxl + 2) + ", align 1\n";
+                    buffer+= "  %" + reg++ + " = trunc i8 %"+ (reg - 2) + " to i1\n"; 
+                    buffer+= "  %" + reg++ + " = zext i1 %"+ (reg - 2) + " to i32\n";
+                    buffer+= "  %" + reg++ + " = load i8, i8* %" + (varIdxr + 2) + ", align 1\n";
+                    buffer+= "  %" + reg++ + " = trunc i8 %"+ (reg - 2) + " to i1\n"; 
+                    buffer+= "  %" + reg++ + " = zext i1 %"+ (reg - 2) + " to i32\n";
+                    buffer+= "  %" + reg++ + " = icmp ne i32 %"+ (reg - 5) + ", %"+ (reg - 2)+"\n";
+                    buffer+= "  %" + reg++ + " = zext i1 %"+ (reg - 2) + " to i8\n";
+                    buffer_var_bool_flag = 2;
+                break;
 			case STRING_TYPE:		/*codigo llvm ne */	break;
 			default:
 				System.err.printf("Invalid type: %s!\n", l.type.toString());
