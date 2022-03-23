@@ -390,14 +390,14 @@ public class LLVMGenerator extends ASTBaseVisitor<Integer>{
 
 		// Emits the 'sum' for the corresponding type
 	    if (node.type == Type.FLOAT32_TYPE) {
-            buffer+= "  %" + reg++ + " = load float, float* %" + (varIdxl + 2) + ", align 4\n"; 
-            buffer+= "  %" + reg++ + " = load float, float* %" + (varIdxr + 2) + ", align 4\n";
-            buffer+= "  %" + reg++ + " = fsub float %"+ (reg - 3) + ", %"+ (reg - 2)+"\n";
+            buffer+= "  %" + reg++ + " = load float, float* %" + (varIdxr + 2) + ", align 4\n"; 
+            buffer+= "  %" + reg++ + " = load float, float* %" + (varIdxl + 2) + ", align 4\n";
+            buffer+= "  %" + reg++ + " = fsub float %"+ (reg - 2) + ", %"+ (reg - 3)+"\n";
             buffer_var_float_flag = 2;
 	    } else {
-            buffer+= "  %" + reg++ + " = load i32, i32* %" + (varIdxl + 2) + ", align 4\n"; 
-            buffer+= "  %" + reg++ + " = load i32, i32* %" + (varIdxr + 2) + ", align 4\n";
-            buffer+= "  %" + reg++ + " = sub nsw i32 %"+ (reg - 3) + ", %"+ (reg - 2)+"\n";
+            buffer+= "  %" + reg++ + " = load i32, i32* %" + (varIdxr + 2) + ", align 4\n"; 
+            buffer+= "  %" + reg++ + " = load i32, i32* %" + (varIdxl + 2) + ", align 4\n";
+            buffer+= "  %" + reg++ + " = sub nsw i32 %"+ (reg - 2) + ", %"+ (reg - 3)+"\n";
             buffer_var_int_flag = 2;
 	    }
         return null;
@@ -507,24 +507,26 @@ public class LLVMGenerator extends ASTBaseVisitor<Integer>{
 
     @Override
     protected Integer visitMinusAssign(AST node) {
-        // Visits the expression to push its value to the stack
-		visit(node.getChild(1));
+        AST lNode = node.getChild(0);
+		AST rNode = node.getChild(1);
 
-		// Get the var index and type 
-		int varIdx = node.getChild(0).intData;
-		Type varType = vt.getType(varIdx);
+		visit(lNode);
+		visit(rNode);
+
+        int varIdxl = lNode.intData;
+        int varIdxr = rNode.intData;
 
 		// Emits the 'sub' for the corresponding type
-	    if (node.type == Type.FLOAT32_TYPE) {
-            buffer+= "  %" + reg++ + " = load float, float* %" + (varIdx + 2) + ", align 4\n"; 
-            buffer+= "  %" + reg++ + " = load float, float* %" + (varIdx + 2) + ", align 4\n";
-            buffer+= "  %" + reg++ + " = fsub float %"+ (reg - 3) + ", %"+ (reg - 2)+"\n";
-            buffer_var_float_flag = 2;
+	     if (node.type == Type.FLOAT32_TYPE) {
+            buffer+= "  %" + reg++ + " = load float, float* %" + (varIdxr + 2) + ", align 4\n"; 
+            buffer+= "  %" + reg++ + " = load float, float* %" + (varIdxl + 2) + ", align 4\n";
+            buffer+= "  %" + reg++ + " = fsub float %"+ (reg - 2) + ", %"+ (reg - 3)+"\n";
+            buffer += "  store float %" + (reg - 1) + ", float* %" + (varIdxl +2) + ", align 4\n";
 	    } else {
-            buffer+= "  %" + reg++ + " = load i32, i32* %" + (varIdx + 2) + ", align 4\n"; 
-            buffer+= "  %" + reg++ + " = load i32, i32* %" + (varIdx + 2) + ", align 4\n";
-            buffer+= "  %" + reg++ + " = sub nsw i32 %"+ (reg - 3) + ", %"+ (reg - 2)+"\n";
-            buffer_var_int_flag = 2;
+            buffer+= "  %" + reg++ + " = load i32, i32* %" + (varIdxr + 2) + ", align 4\n"; 
+            buffer+= "  %" + reg++ + " = load i32, i32* %" + (varIdxl + 2) + ", align 4\n";
+            buffer+= "  %" + reg++ + " = sub nsw i32 %"+ (reg - 2) + ", %"+ (reg - 3)+"\n";
+            buffer += "  store i32 %" + (reg - 1) + ", i32* %" + (varIdxl +2) + ", align 4\n";
 	    }
         return null;
 
