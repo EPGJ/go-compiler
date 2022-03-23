@@ -7,23 +7,27 @@ import "fmt"
  */
 func main() {
 
-	//int
+	//====== operations (*, +, -, /)
 	// var add = 3
 	// var add2 = 2
 	// var add3 = 5
 	// add3 = add * add2
 
-	// =================
+	// ===== operations assign (+=, -=, *=, /=)
 	// var add1 = 0
 	// var add2 = 1
-
 	// add1 += add2
 
-	//======
+	// ===== operations (++, --)
+	// var add1 = 1
+	// add1++
 
-	var add1 = 1
-	add1++
-	
+	// ===== comparations (==, !=, >, <, >=, <=, )
+
+	var add = 5
+	var add2 = 6
+	var o = true
+	o = add == add2
 
 
 
