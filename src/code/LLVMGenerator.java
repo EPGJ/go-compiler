@@ -132,9 +132,9 @@ public class LLVMGenerator extends ASTBaseVisitor<Integer>{
 			visit(expression);
 			
 			switch(expression.type) {
-				case INT_TYPE:  	/*buffer+=x;*/		break;
-				case FLOAT32_TYPE: 	/*buffer+=x;*/		break;
-				case BOOL_TYPE: 	/*buffer+=x;*/   	break;
+				case INT_TYPE:  	buffer+=buffer_var_int;		break;
+				case FLOAT32_TYPE: 	buffer+=buffer_var_float;		break;
+				case BOOL_TYPE: 	buffer+=buffer_var_bool;  	break;
 				case STRING_TYPE:  	/*buffer+=x;*/		break;
 				case NO_TYPE:
 				default:
