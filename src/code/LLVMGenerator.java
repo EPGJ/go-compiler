@@ -785,7 +785,19 @@ public class LLVMGenerator extends ASTBaseVisitor<Integer>{
 
     @Override
     protected Integer visitFor(AST node) {
-        // TODO Auto-generated method stub
+        
+        buffer += "  br label %" + reg++ + "\n";
+        buffer += (reg-1)+":                                                         \n";
+        // Visits the condition and get the result resgister
+        visit(node.getChild(0));
+
+        buffer += (reg - 1)+":                                                        \n";
+        visit(node.getChild(1)); // Emit code for body.
+
+        buffer += (reg - 1)+":                                                        \n";
+
+		
+
         return null;
     }
 
