@@ -13,10 +13,10 @@ func main() {
 	// var add3 = 5
 	// add3 = add * add2
 
-	var add = 7
-	var x = 8;
-	var y = 6;
-	add = x + y
+	var x = 7
+	var y = 5;
+	var z = 6;
+	z = x + y
 	// ===== operations assign (+=, -=, *=, /=)
 	// var add1 = 0.0
 	// var add2 = 1.1

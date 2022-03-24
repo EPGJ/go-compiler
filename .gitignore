@@ -54,4 +54,5 @@ node_modules
 *.dot
 *.class
 *.pdf
+*.ll
 src/parser
