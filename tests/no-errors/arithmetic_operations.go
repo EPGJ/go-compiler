@@ -29,16 +29,19 @@ func main() {
 	// var o = true
 	// o = add  add2
 
-	var add1 = 1
+	var add1 = 10
 	var add2 = 2
-	if add1 == add2 {
-		var add3 = 3
+	// if add1 == add2 {
+	// 	var add3 = 3
+	// }
+	// else {
+	// 	var add4 = 4
+	// } 
+
+	
+	for add1 <= 15 {
+		add1 = add1 + 1
 	}
-	else {
-		var add4 = 4
-	} 
-
-
 
 	//float
 	// var add = 3.3

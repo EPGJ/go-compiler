@@ -12,7 +12,6 @@ import checker.SemanticChecker;
 import parser.GoLexer;
 import parser.GoParser;
 
-import code.CodeGen;
 import code.Interpreter;
 import code.LLVMGenerator;
 

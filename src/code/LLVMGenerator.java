@@ -759,34 +759,25 @@ public class LLVMGenerator extends ASTBaseVisitor<Integer>{
 
 		// Has both the condition and statement section
 		if (size == 2) {
-			int conditionInstr = nextInstr;
 
+            buffer += "  br label %" + reg++ + "\n";
+            buffer += (reg-1)+":                                                         \n";
 			// Visits the condition and get the result resgister
-			int conditionReg = visit(node.getChild(0));
+			visit(node.getChild(0));
 
-			int branchOnFalseInstr = nextInstr;
-			emit(BOFb, conditionReg, 0); // Leave offset empty now, will be backpatched.
-	
-			int beginWhile = nextInstr;
+            buffer += (reg - 1)+":                                                        \n";
 			visit(node.getChild(1)); // Emit code for body.
 
-			// Emits a 'jump' operation back to the condition instruction
-			emit(JUMP, conditionInstr);
+			buffer += (reg - 1)+":                                                        \n";
 
-			// Backpatch the condition 'branch on false'
-			// so it jumps to after the statements block
-			backpatchBranch(branchOnFalseInstr, nextInstr - beginWhile + 1);
 		}
 
 		// Doenst have a condition to be evaluated
 		if(size == 1) {
-			int beginWhile = nextInstr;
-
 			// Visits the statement section
 			visit(node.getChild(0));
 
 			// Emits a 'jump' operation back to the start of while block
-			emit(JUMP, beginWhile);
 		}
 
 		return null; 
