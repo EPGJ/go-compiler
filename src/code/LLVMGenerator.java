@@ -124,9 +124,9 @@ public class LLVMGenerator extends ASTBaseVisitor<Integer>{
 			visit(expression);
 			
 			switch(expression.type) {
-				case INT_TYPE:  	buffer+=buffer_var_int;		break;
-				case FLOAT32_TYPE: 	buffer+=buffer_var_float;	break;
-				case BOOL_TYPE: 	buffer+=buffer_var_bool;  	break;
+				case INT_TYPE:  	/** buffer+=buffer_var_int;*/		break;
+				case FLOAT32_TYPE: 	/** buffer+=buffer_var_float;*/	    break;
+				case BOOL_TYPE: 	/** buffer+=buffer_var_bool;*/  	break;
 				case STRING_TYPE:  	/*buffer+=x;*/		        break;
 				case NO_TYPE:
 				default:
@@ -277,14 +277,12 @@ public class LLVMGenerator extends ASTBaseVisitor<Integer>{
                     buffer+= "  %" + reg++ + " = load i32, i32* %" + (varIdxl + 2) + ", align 4\n"; 
                     buffer+= "  %" + reg++ + " = load i32, i32* %" + (varIdxr + 2) + ", align 4\n";
                     buffer+= "  %" + reg++ + " = icmp sgt i32 %"+ (reg - 3) + ", %"+ (reg - 2)+"\n";
-                    // buffer+= "  %" + reg++ + " = zext i1 %"+ (reg - 2) + " to i8\n";
                     buffer_var_bool_flag = 2;
                 break;
 			case FLOAT32_TYPE:		
             	    buffer+= "  %" + reg++ + " = load float, float* %" + (varIdxl + 2) + ", align 4\n"; 
                     buffer+= "  %" + reg++ + " = load float, float* %" + (varIdxr + 2) + ", align 4\n";
                     buffer+= "  %" + reg++ + " = fcmp ogt float %"+ (reg - 3) + ", %"+ (reg - 2)+"\n";
-                    // buffer+= "  %" + reg++ + " = zext i1 %"+ (reg - 2) + " to i8\n";
                     buffer_var_bool_flag = 2;
                 break;
 			case STRING_TYPE:		/*codigo llvm sgt */	break;
@@ -544,17 +542,17 @@ public class LLVMGenerator extends ASTBaseVisitor<Integer>{
 			
 			if (varType == Type.FLOAT32_TYPE) {
                 buffer += "  %" + reg++ + " = alloca float, align 4\n";
-                if (buffer_var_float != 0) //Verifica se a declaração já possui o valor
+                if (buffer_var_float != 0)                              //Verifica se a declaração já possui o valor
                     buffer += "  store float " + floatToLLVM(buffer_var_float) + ", float* %" + (varIdx +2) + ", align 4\n";
 			} 
             else if (varType == Type.BOOL_TYPE){
                 buffer += "  %" + reg++ + " = alloca i8, align 1\n";
-                if (buffer_var_bool != 2) //Verifica se a declaração já possui o valor, nesse caso 2, porque bool é 0 ou 1
+                if (buffer_var_bool != 2)                               //Verifica se a declaração já possui o valor, nesse caso 2, porque bool é 0 ou 1
                     buffer += "  store i8 " + buffer_var_bool + ", i8* %" + (varIdx +2) + ", align 1\n";
 			}
              else {
                 buffer += "  %" + reg++ + " = alloca i32, align 4\n";
-                if (buffer_var_int != 0) //Verifica se a declaração já possui o valor
+                if (buffer_var_int != 0)                                //Verifica se a declaração já possui o valor
                     buffer += "  store i32 " + buffer_var_int + ", i32* %" + (varIdx +2) + ", align 4\n";
 			}
 		}
@@ -699,7 +697,7 @@ public class LLVMGenerator extends ASTBaseVisitor<Integer>{
             buffer += (reg-1)+":                                                         \n";
 			visit(node.getChild(2));
             buffer += "  br label %"+ reg +"\n";
-            buffer += reg+":                                                         \n";
+            buffer += reg+":                                                             \n";
 
 		} else {
             buffer += "  br i1 %" + (reg - 1) + ", label %" + reg++ +", label %"+reg++ +"\n";
