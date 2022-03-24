@@ -2,8 +2,6 @@ package code;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Scanner;
-import java.util.Stack;
 
 import ast.AST;
 import ast.ASTBaseVisitor;
@@ -49,6 +47,13 @@ public class LLVMGenerator extends ASTBaseVisitor<Integer>{
         System.out.println(text);
     }
 
+    // Helper method to find the function reference when the function is called
+	FunctionRef findFuncRef(String name) {
+		for (FunctionRef ref : functionRefs) {
+			if (ref.name == name) return ref;
+		}
+		return null;
+	}
 
     @Override
     protected Integer visitBoolVal(AST node) {
@@ -788,6 +793,26 @@ public class LLVMGenerator extends ASTBaseVisitor<Integer>{
 
     @Override
     protected Integer visitFuncArgs(AST node) {
+        // int funcIdx = node.intData;
+		// String name = ft.getName(funcIdx);
+
+		// FunctionRef ref = findFuncRef(name);
+		// AST expressionList = node.getChild(0);
+
+		// if (ref.args != null) {
+		// 	// Assigns every value from the expression list to its corresponding arg
+		// 	for(int i = 0; i < ref.args.getChildren().size(); i++) {
+		// 		// Visits the expression and pushes its value to the stack
+		// 		visit(expressionList.getChild(i));
+	
+		// 		AST arg = ref.args.getChild(i);
+	
+		// 		execAssign(arg.type, arg.intData, "=");
+		// 	}
+		// }
+
+		// visit(ref.statementSection);
+		
         return null;
     }
 
