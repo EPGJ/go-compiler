@@ -2,9 +2,7 @@ package main
 
 import "fmt"
 
-/*
- * Simple program that prints basic arithmetic operations
- */
+
 func main() {
 
 	var x = 7

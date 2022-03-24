@@ -272,14 +272,14 @@ public class LLVMGenerator extends ASTBaseVisitor<Integer>{
                     buffer+= "  %" + reg++ + " = load i32, i32* %" + (varIdxl + 2) + ", align 4\n"; 
                     buffer+= "  %" + reg++ + " = load i32, i32* %" + (varIdxr + 2) + ", align 4\n";
                     buffer+= "  %" + reg++ + " = icmp sgt i32 %"+ (reg - 3) + ", %"+ (reg - 2)+"\n";
-                    buffer+= "  %" + reg++ + " = zext i1 %"+ (reg - 2) + " to i8\n";
+                    // buffer+= "  %" + reg++ + " = zext i1 %"+ (reg - 2) + " to i8\n";
                     buffer_var_bool_flag = 2;
                 break;
 			case FLOAT32_TYPE:		
             	    buffer+= "  %" + reg++ + " = load float, float* %" + (varIdxl + 2) + ", align 4\n"; 
                     buffer+= "  %" + reg++ + " = load float, float* %" + (varIdxr + 2) + ", align 4\n";
                     buffer+= "  %" + reg++ + " = fcmp ogt float %"+ (reg - 3) + ", %"+ (reg - 2)+"\n";
-                    buffer+= "  %" + reg++ + " = zext i1 %"+ (reg - 2) + " to i8\n";
+                    // buffer+= "  %" + reg++ + " = zext i1 %"+ (reg - 2) + " to i8\n";
                     buffer_var_bool_flag = 2;
                 break;
 			case STRING_TYPE:		/*codigo llvm sgt */	break;
@@ -655,20 +655,9 @@ public class LLVMGenerator extends ASTBaseVisitor<Integer>{
 		Type varType = vt.getType(varIdx);
 
 		if (varType == Type.FLOAT32_TYPE) {
-			/*
-            %1 = alloca i32, align 4
-            %2 = alloca float, align 4
-            store i32 0, i32* %1, align 4
-            store float 1.000000e+00, float* %2, align 4
-            %3 = load float, float* %2, align 4
-            %4 = fadd float %3, 1.000000e+00
-            store float %4, float* %2, align 4
-            ret i32 0
-            */
+			/* */
 	    } else {
-			// buffer += "%" + reg++ + " = load i32, i32* %" + (varIdx +2) + ", align 4\n";
-            // buffer += "%" + reg++ + " = add nsw i32 %" + (reg-1) + ", 1";
-            // buffer += "store i32 %4, i32* %" + (varIdx +2) + ", align 4";
+			/* */
 	    }
         return null;
     }
@@ -683,27 +672,9 @@ public class LLVMGenerator extends ASTBaseVisitor<Integer>{
 		Type varType = vt.getType(varIdx);
 
 		if (varType == Type.FLOAT32_TYPE) {
-			/*
-            %1 = alloca i32, align 4
-            %2 = alloca float, align 4
-            store i32 0, i32* %1, align 4
-            store float 1.000000e+00, float* %2, align 4
-            %3 = load float, float* %2, align 4
-            %4 = fadd float %3, -1.000000e+00
-            store float %4, float* %2, align 4
-            ret i32 0
-            */
+			/* */
 	    } else {
-			/*
-            %1 = alloca i32, align 4
-            %2 = alloca i32, align 4
-            store i32 0, i32* %1, align 4
-            store i32 1, i32* %2, align 4
-            %3 = load i32, i32* %2, align 4
-            %4 = add nsw i32 %3, -1
-            store i32 %4, i32* %2, align 4
-            ret i32 0
-            */
+			/* */
 	    }
         return null;
     }
@@ -719,8 +690,11 @@ public class LLVMGenerator extends ASTBaseVisitor<Integer>{
             buffer += "  br i1 %" + (reg - 1) + ", label %" + reg++ +", label %"+reg++ +"\n";
             buffer += (reg-2)+":                                                         \n";
             visit(node.getChild(1));
+            buffer += "  br label %"+ reg +"\n";
             buffer += (reg-1)+":                                                         \n";
-			visit(node.getChild(2)); 
+			visit(node.getChild(2));
+            buffer += "  br label %"+ reg +"\n";
+            buffer += reg+":                                                         \n";
 
 		} else {
             buffer += "  br i1 %" + (reg - 1) + ", label %" + reg++ +", label %"+reg++ +"\n";
@@ -778,6 +752,7 @@ public class LLVMGenerator extends ASTBaseVisitor<Integer>{
         buffer += (reg-1)+":                                                         \n";
         // Visits the condition and get the result resgister
         visit(node.getChild(0));
+        buffer += "  br label %"+ reg +"\n";
 
         buffer += (reg - 1)+":                                                        \n";
         visit(node.getChild(1)); // Emit code for body.
