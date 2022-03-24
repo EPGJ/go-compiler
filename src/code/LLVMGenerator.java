@@ -27,7 +27,6 @@ public class LLVMGenerator extends ASTBaseVisitor<Integer>{
     private static int br = 0;
     private final StrTable st;
 	private final VarTable vt;
-    // private final Scanner in;
 
     static Stack<Integer> br_stack = new Stack<>();
 
@@ -133,9 +132,9 @@ public class LLVMGenerator extends ASTBaseVisitor<Integer>{
 			
 			switch(expression.type) {
 				case INT_TYPE:  	buffer+=buffer_var_int;		break;
-				case FLOAT32_TYPE: 	buffer+=buffer_var_float;		break;
+				case FLOAT32_TYPE: 	buffer+=buffer_var_float;	break;
 				case BOOL_TYPE: 	buffer+=buffer_var_bool;  	break;
-				case STRING_TYPE:  	/*buffer+=x;*/		break;
+				case STRING_TYPE:  	/*buffer+=x;*/		        break;
 				case NO_TYPE:
 				default:
 					System.err.printf("Invalid output type: %s!\n", expression.type.toString());
@@ -204,10 +203,25 @@ public class LLVMGenerator extends ASTBaseVisitor<Integer>{
 		visit(l);
 		visit(r);
 
+        int varIdxl = l.intData;
+        int varIdxr = r.intData;
+
+		// Emits the 'lesser than' for the corresponding type
 		switch (l.type) {
-			case INT_TYPE:			/*codigo llvm slt */	break;
-			case FLOAT32_TYPE:		/*codigo llvm slt */	break;
-			case BOOL_TYPE:			/*codigo llvm slt */	break;
+			case INT_TYPE:	
+                    buffer+= "  %" + reg++ + " = load i32, i32* %" + (varIdxl + 2) + ", align 4\n"; 
+                    buffer+= "  %" + reg++ + " = load i32, i32* %" + (varIdxr + 2) + ", align 4\n";
+                    buffer+= "  %" + reg++ + " = icmp slt i32 %"+ (reg - 3) + ", %"+ (reg - 2)+"\n";
+                    buffer+= "  %" + reg++ + " = zext i1 %"+ (reg - 2) + " to i8\n";
+                    buffer_var_bool_flag = 2;
+                break;
+			case FLOAT32_TYPE:		
+            	    buffer+= "  %" + reg++ + " = load float, float* %" + (varIdxl + 2) + ", align 4\n"; 
+                    buffer+= "  %" + reg++ + " = load float, float* %" + (varIdxr + 2) + ", align 4\n";
+                    buffer+= "  %" + reg++ + " = fcmp olt float %"+ (reg - 3) + ", %"+ (reg - 2)+"\n";
+                    buffer+= "  %" + reg++ + " = zext i1 %"+ (reg - 2) + " to i8\n";
+                    buffer_var_bool_flag = 2;
+                break;
 			case STRING_TYPE:		/*codigo llvm slt */	break;
 			default:
 				System.err.printf("Invalid type: %s!\n", l.type.toString());
@@ -225,10 +239,25 @@ public class LLVMGenerator extends ASTBaseVisitor<Integer>{
 		visit(l);
 		visit(r);
 
+		int varIdxl = l.intData;
+        int varIdxr = r.intData;
+
+		// Emits the 'less or equals' for the corresponding type
 		switch (l.type) {
-			case INT_TYPE:			/*codigo llvm sle */	break;
-			case FLOAT32_TYPE:		/*codigo llvm sle */	break;
-			case BOOL_TYPE:			/*codigo llvm sle */	break;
+			case INT_TYPE:	
+                    buffer+= "  %" + reg++ + " = load i32, i32* %" + (varIdxl + 2) + ", align 4\n"; 
+                    buffer+= "  %" + reg++ + " = load i32, i32* %" + (varIdxr + 2) + ", align 4\n";
+                    buffer+= "  %" + reg++ + " = icmp sle i32 %"+ (reg - 3) + ", %"+ (reg - 2)+"\n";
+                    buffer+= "  %" + reg++ + " = zext i1 %"+ (reg - 2) + " to i8\n";
+                    buffer_var_bool_flag = 2;
+                break;
+			case FLOAT32_TYPE:		
+            	    buffer+= "  %" + reg++ + " = load float, float* %" + (varIdxl + 2) + ", align 4\n"; 
+                    buffer+= "  %" + reg++ + " = load float, float* %" + (varIdxr + 2) + ", align 4\n";
+                    buffer+= "  %" + reg++ + " = fcmp ole float %"+ (reg - 3) + ", %"+ (reg - 2)+"\n";
+                    buffer+= "  %" + reg++ + " = zext i1 %"+ (reg - 2) + " to i8\n";
+                    buffer_var_bool_flag = 2;
+                break;
 			case STRING_TYPE:		/*codigo llvm sle */	break;
 			default:
 				System.err.printf("Invalid type: %s!\n", l.type.toString());
@@ -245,7 +274,6 @@ public class LLVMGenerator extends ASTBaseVisitor<Integer>{
 
 		visit(l);
 		visit(r);
-
 
 		int varIdxl = l.intData;
         int varIdxr = r.intData;
@@ -266,9 +294,6 @@ public class LLVMGenerator extends ASTBaseVisitor<Integer>{
                     buffer+= "  %" + reg++ + " = zext i1 %"+ (reg - 2) + " to i8\n";
                     buffer_var_bool_flag = 2;
                 break;
-			case BOOL_TYPE:
-                //Existe comparação de bool?
-                break;
 			case STRING_TYPE:		/*codigo llvm sgt */	break;
 			default:
 				System.err.printf("Invalid type: %s!\n", l.type.toString());
@@ -286,10 +311,25 @@ public class LLVMGenerator extends ASTBaseVisitor<Integer>{
 		visit(l);
 		visit(r);
 
+		int varIdxl = l.intData;
+        int varIdxr = r.intData;
+
+		// Emits the 'greater or equals' for the corresponding type
 		switch (l.type) {
-			case INT_TYPE:			/*codigo llvm sge */	break;
-			case FLOAT32_TYPE:		/*codigo llvm sge */	break;
-			case BOOL_TYPE:			/*codigo llvm sge */	break;
+			case INT_TYPE:	
+                    buffer+= "  %" + reg++ + " = load i32, i32* %" + (varIdxl + 2) + ", align 4\n"; 
+                    buffer+= "  %" + reg++ + " = load i32, i32* %" + (varIdxr + 2) + ", align 4\n";
+                    buffer+= "  %" + reg++ + " = icmp sge i32 %"+ (reg - 3) + ", %"+ (reg - 2)+"\n";
+                    buffer+= "  %" + reg++ + " = zext i1 %"+ (reg - 2) + " to i8\n";
+                    buffer_var_bool_flag = 2;
+                break;
+			case FLOAT32_TYPE:		
+            	    buffer+= "  %" + reg++ + " = load float, float* %" + (varIdxl + 2) + ", align 4\n"; 
+                    buffer+= "  %" + reg++ + " = load float, float* %" + (varIdxr + 2) + ", align 4\n";
+                    buffer+= "  %" + reg++ + " = fcmp oge float %"+ (reg - 3) + ", %"+ (reg - 2)+"\n";
+                    buffer+= "  %" + reg++ + " = zext i1 %"+ (reg - 2) + " to i8\n";
+                    buffer_var_bool_flag = 2;
+                break;
 			case STRING_TYPE:		/*codigo llvm sge */	break;
 			default:
 				System.err.printf("Invalid type: %s!\n", l.type.toString());
@@ -682,7 +722,26 @@ public class LLVMGenerator extends ASTBaseVisitor<Integer>{
 
     @Override
     protected Integer visitIf(AST node) {
-        // TODO Auto-generated method stub
+        // Visits the condition node
+		visit(node.getChild(0));
+
+		// Checks if there is an ELSE
+		if (node.getChildren().size() == 3) {
+            
+            buffer += "  br i1 %" + (reg - 1) + ", label %" + reg++ +", label %"+reg++ +"\n";
+            buffer += (reg-2)+":                                                         \n";
+            visit(node.getChild(1));
+            buffer += (reg-1)+":                                                         \n";
+			visit(node.getChild(2)); 
+
+		} else {
+            buffer += "  br i1 %" + (reg - 1) + ", label %" + reg++ +", label %"+reg++ +"\n";
+            buffer += (reg-2)+":                                                         \n";
+            visit(node.getChild(1));
+            buffer += (reg-2)+":                                                         \n";           
+		}
+       
+
         return null;
     }
 
@@ -696,8 +755,41 @@ public class LLVMGenerator extends ASTBaseVisitor<Integer>{
 
     @Override
     protected Integer visitWhile(AST node) {
-        // TODO Auto-generated method stub
-        return null;
+        int size = node.getChildren().size();
+
+		// Has both the condition and statement section
+		if (size == 2) {
+			int conditionInstr = nextInstr;
+
+			// Visits the condition and get the result resgister
+			int conditionReg = visit(node.getChild(0));
+
+			int branchOnFalseInstr = nextInstr;
+			emit(BOFb, conditionReg, 0); // Leave offset empty now, will be backpatched.
+	
+			int beginWhile = nextInstr;
+			visit(node.getChild(1)); // Emit code for body.
+
+			// Emits a 'jump' operation back to the condition instruction
+			emit(JUMP, conditionInstr);
+
+			// Backpatch the condition 'branch on false'
+			// so it jumps to after the statements block
+			backpatchBranch(branchOnFalseInstr, nextInstr - beginWhile + 1);
+		}
+
+		// Doenst have a condition to be evaluated
+		if(size == 1) {
+			int beginWhile = nextInstr;
+
+			// Visits the statement section
+			visit(node.getChild(0));
+
+			// Emits a 'jump' operation back to the start of while block
+			emit(JUMP, beginWhile);
+		}
+
+		return null; 
     }
 
     @Override

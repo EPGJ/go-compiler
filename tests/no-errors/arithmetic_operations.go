@@ -24,11 +24,19 @@ func main() {
 
 	// ===== comparations (==, !=, >, <, >=, <=, )
 
-	var add = true
-	var add2 = false
-	var o = true
-	o = add  add2
+	// var add = true
+	// var add2 = false
+	// var o = true
+	// o = add  add2
 
+	var add1 = 1
+	var add2 = 2
+	if add1 == add2 {
+		var add3 = 3
+	}
+	else {
+		var add4 = 4
+	} 
 
 
 
