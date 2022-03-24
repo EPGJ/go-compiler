@@ -726,9 +726,11 @@ public class LLVMGenerator extends ASTBaseVisitor<Integer>{
             buffer += (reg-1)+":                                                         \n";
 			// Visits the condition and get the result resgister
 			visit(node.getChild(0));
+            buffer += "  br label %"+ (reg + 2) +"\n";
 
             buffer += (reg - 1)+":                                                        \n";
 			visit(node.getChild(1)); // Emit code for body.
+            buffer += "  br label %"+ (reg - 1) +"\n";
 
 			buffer += (reg - 1)+":                                                        \n";
 
@@ -747,7 +749,6 @@ public class LLVMGenerator extends ASTBaseVisitor<Integer>{
 
     @Override
     protected Integer visitFor(AST node) {
-        
         buffer += "  br label %" + reg++ + "\n";
         buffer += (reg-1)+":                                                         \n";
         // Visits the condition and get the result resgister
