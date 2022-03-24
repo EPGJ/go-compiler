@@ -2,7 +2,6 @@ package code;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Scanner;
 import java.util.Stack;
 
 import ast.AST;
@@ -16,8 +15,6 @@ public class LLVMGenerator extends ASTBaseVisitor<Integer>{
 
     static int reg = 2;
 
-    private static String header_text = "";
-    private static String main_text = "";
     private static String buffer = "";
     private static int buffer_var_int =0;
     private static int buffer_var_int_flag =1;
@@ -25,15 +22,12 @@ public class LLVMGenerator extends ASTBaseVisitor<Integer>{
     private static int buffer_var_float_flag =1;
     private static int buffer_var_bool = 2;
     private static int buffer_var_bool_flag =1;
-    private static int str_i = 0;
-    private static int main_reg = 2;
-    private static int br = 0;
+    private static int buffer_aux = 0;
     private final StrTable st;
 	private final VarTable vt;
 	private final FuncTable ft;
     private List<FunctionRef> functionRefs;
 
-    static Stack<Integer> br_stack = new Stack<>();
 
 
     public LLVMGenerator(StrTable st, VarTable vt, FuncTable ft) {
@@ -46,11 +40,8 @@ public class LLVMGenerator extends ASTBaseVisitor<Integer>{
     @Override 
     public void execute(AST root) {
         visit(root);
-        main_text += buffer;
-        formatMainText();
         String text = "";
         text += "\n";
-        text += header_text;
         text += "define dso_local i32 @main() #0{\n  %1 = alloca i32, align 4\n  store i32 0, i32* %1, align 4\n";
         text += buffer;
         text += "  ret i32 0\n";
@@ -60,14 +51,6 @@ public class LLVMGenerator extends ASTBaseVisitor<Integer>{
     }
 
 
-    private static void formatMainText() {
-        String[] lines = main_text.split("\n");
-        StringBuilder sb = new StringBuilder();
-        for (String line : lines) {
-            sb.append("  ").append(line).append("\n");
-        }
-        main_text = sb.toString();
-    }
 
     // Helper method to find the function reference when the function is called
 	FunctionRef findFuncRef(String name) {
@@ -97,7 +80,6 @@ public class LLVMGenerator extends ASTBaseVisitor<Integer>{
 
     @Override
     protected Integer visitStringVal(AST node) {
-        // buffer += node.intData;
         return null;
     }
 
@@ -121,9 +103,7 @@ public class LLVMGenerator extends ASTBaseVisitor<Integer>{
 			case BOOL_TYPE:
                 buffer+= "%" + reg++ +" = alloca i8, align 1";
 				break;
-			case STRING_TYPE:
-                // buffer+= "%" + reg++ +" = alloca i32, align 4";
-				break;
+            case STRING_TYPE:		/* */	break;
 		    default:
 	            System.err.printf("Invalid input type: %s!\n", varType.toString());
 	            System.exit(1);
@@ -149,7 +129,7 @@ public class LLVMGenerator extends ASTBaseVisitor<Integer>{
 				case INT_TYPE:  	buffer+=buffer_var_int;		break;
 				case FLOAT32_TYPE: 	buffer+=buffer_var_float;	break;
 				case BOOL_TYPE: 	buffer+=buffer_var_bool;  	break;
-				case STRING_TYPE:  	/*buffer+=x;*/		        break;
+                case STRING_TYPE:		/* */	break;
 				case NO_TYPE:
 				default:
 					System.err.printf("Invalid output type: %s!\n", expression.type.toString());
@@ -201,7 +181,7 @@ public class LLVMGenerator extends ASTBaseVisitor<Integer>{
                     buffer+= "  %" + reg++ + " = zext i1 %"+ (reg - 2) + " to i8\n";
                     buffer_var_bool_flag = 2;
                 break;
-			case STRING_TYPE:		/*codigo llvm icmp */	break;
+                case STRING_TYPE:		/* */	break;
 			default:
 				System.err.printf("Invalid type: %s!\n", l.type.toString());
 				System.exit(1);
@@ -237,7 +217,7 @@ public class LLVMGenerator extends ASTBaseVisitor<Integer>{
                     buffer+= "  %" + reg++ + " = zext i1 %"+ (reg - 2) + " to i8\n";
                     buffer_var_bool_flag = 2;
                 break;
-			case STRING_TYPE:		/*codigo llvm slt */	break;
+            case STRING_TYPE:		/* */	break;
 			default:
 				System.err.printf("Invalid type: %s!\n", l.type.toString());
 				System.exit(1);
@@ -273,7 +253,7 @@ public class LLVMGenerator extends ASTBaseVisitor<Integer>{
                     buffer+= "  %" + reg++ + " = zext i1 %"+ (reg - 2) + " to i8\n";
                     buffer_var_bool_flag = 2;
                 break;
-			case STRING_TYPE:		/*codigo llvm sle */	break;
+			case STRING_TYPE:		/* */	break;
 			default:
 				System.err.printf("Invalid type: %s!\n", l.type.toString());
 				System.exit(1);
@@ -309,7 +289,7 @@ public class LLVMGenerator extends ASTBaseVisitor<Integer>{
                     buffer+= "  %" + reg++ + " = zext i1 %"+ (reg - 2) + " to i8\n";
                     buffer_var_bool_flag = 2;
                 break;
-			case STRING_TYPE:		/*codigo llvm sgt */	break;
+			case STRING_TYPE:		/* */	break;
 			default:
 				System.err.printf("Invalid type: %s!\n", l.type.toString());
 				System.exit(1);
@@ -496,10 +476,30 @@ public class LLVMGenerator extends ASTBaseVisitor<Integer>{
             buffer+= "  %" + reg++ + " = fadd float %"+ (reg - 3) + ", %"+ (reg - 2)+"\n";
             buffer_var_float_flag = 2;
 	    } else {
-            buffer+= "  %" + reg++ + " = load i32, i32* %" + (varIdxl + 2) + ", align 4\n"; 
-            buffer+= "  %" + reg++ + " = load i32, i32* %" + (varIdxr + 2) + ", align 4\n";
-            buffer+= "  %" + reg++ + " = add nsw i32 %"+ (reg - 3) + ", %"+ (reg - 2)+"\n";
-            buffer_var_int_flag = 2;
+            int buffer_var_aux = buffer_var_int;                                    //Pega o valor do número r
+            visit(lNode);                                                           // Atualiza o buffer pro valor do numero l
+            if(buffer_var_int == varIdxl){                                          //Quer dizer que left é um número ou que não importa
+                if(buffer_var_aux == varIdxr){                                      //Os dois são int ou um número igual ao index
+                    buffer_aux = buffer_var_int + buffer_var_aux;
+                    buffer_var_int_flag = 3;
+                }
+                else{
+                    buffer+= "  %" + reg++ + " = load i32, i32* %" + (varIdxr + 2) + ", align 4\n";
+                    buffer+= "  %" + reg++ + " = add nsw i32 "+ buffer_var_int + ", %"+ (reg - 2) +"\n";
+                    buffer_var_int_flag = 2;
+                }
+            }
+            else if(buffer_var_aux == varIdxr){                                     //Quer dizer que right é um número ou que não importa
+                    buffer+= "  %" + reg++ + " = load i32, i32* %" + (varIdxl + 2) + ", align 4\n";
+                    buffer+= "  %" + reg++ + " = add nsw i32 %"+ (reg - 2) + ", "+ buffer_var_aux +"\n";
+                    buffer_var_int_flag = 2;
+            }
+            else{                                                                   //Nesse caso, nenhum dos dois é int (ou igual), então definitivamente, são duas variáveis
+                buffer+= "  %" + reg++ + " = load i32, i32* %" + (varIdxl + 2) + ", align 4\n"; 
+                buffer+= "  %" + reg++ + " = load i32, i32* %" + (varIdxr + 2) + ", align 4\n";
+                buffer+= "  %" + reg++ + " = add nsw i32 %"+ (reg - 3) + ", %"+ (reg - 2)+"\n";
+                buffer_var_int_flag = 2;
+            }
 	    }
         return null;
     }
@@ -566,17 +566,17 @@ public class LLVMGenerator extends ASTBaseVisitor<Integer>{
 			
 			if (varType == Type.FLOAT32_TYPE) {
                 buffer += "  %" + reg++ + " = alloca float, align 4\n";
-                if (buffer_var_float != 0) //Verifica se a declaração já possui o valor
+                if (buffer_var_float != 0)                                  //Verifica se a declaração já possui o valor
                     buffer += "  store float " + floatToLLVM(buffer_var_float) + ", float* %" + (varIdx +2) + ", align 4\n";
 			} 
             else if (varType == Type.BOOL_TYPE){
                 buffer += "  %" + reg++ + " = alloca i8, align 1\n";
-                if (buffer_var_bool != 2) //Verifica se a declaração já possui o valor, nesse caso 2, porque bool é 0 ou 1
+                if (buffer_var_bool != 2)                                    //Verifica se a declaração já possui o valor, nesse caso 2, porque bool é 0 ou 1
                     buffer += "  store i8 " + buffer_var_bool + ", i8* %" + (varIdx +2) + ", align 1\n";
 			}
              else {
                 buffer += "  %" + reg++ + " = alloca i32, align 4\n";
-                if (buffer_var_int != 0) //Verifica se a declaração já possui o valor
+                if (buffer_var_int != 0)                                    //Verifica se a declaração já possui o valor
                     buffer += "  store i32 " + buffer_var_int + ", i32* %" + (varIdx +2) + ", align 4\n";
 			}
 		}
@@ -614,6 +614,10 @@ public class LLVMGenerator extends ASTBaseVisitor<Integer>{
         else {
             if(buffer_var_int_flag == 2){
                 buffer += "  store i32 %" + (reg - 1) + ", i32* %" + (varIdx +2) + ", align 4\n";
+                buffer_var_int_flag = 1;
+            }
+            else if (buffer_var_int_flag == 3){
+                buffer += "  store i32 " + buffer_aux + ", i32* %" + (varIdx +2) + ", align 4\n";
                 buffer_var_int_flag = 1;
             }   
             else{
@@ -762,8 +766,6 @@ public class LLVMGenerator extends ASTBaseVisitor<Integer>{
 		if(size == 1) {
 			// Visits the statement section
 			visit(node.getChild(0));
-
-			// Emits a 'jump' operation back to the start of while block
 		}
 
 		return null; 
@@ -887,7 +889,7 @@ public class LLVMGenerator extends ASTBaseVisitor<Integer>{
     /*------------------------------------------------------------------------------*
 	 *	Aux Functions
 	 *------------------------------------------------------------------------------*/
-    
+
     public String floatToLLVM(float f) {
 		return "0x" + toHexString(Double.doubleToRawLongBits((double) f));
 	}

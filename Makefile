@@ -1,7 +1,6 @@
 JAVA=java
 JAVAC=javac
 
-# O ANTLR deve estar instalado numa pasta chamada tools na raiz do projeto
 ANTLR_PATH=/usr/local/lib/antlr-4.9.2-complete.jar
 CLASS_PATH_OPTION=-cp .:$(ANTLR_PATH)
 
@@ -37,7 +36,10 @@ javac:
 	$(JAVAC) $(CLASS_PATH_OPTION) -d $(BIN_PATH)  $(SOURCE_PATH)/Main.java  $(SOURCE_PATH)/*/*.java
 
 run:
-	$(JAVA) $(CLASS_PATH_OPTION):$(BIN_PATH) Main $(file) $(flag)
+	$(JAVA) $(CLASS_PATH_OPTION):$(BIN_PATH) Main $(file) $(flag) 
+
+runll: 
+	$(JAVA) $(CLASS_PATH_OPTION):$(BIN_PATH) Main $(file) $(flag) >> $(file).ll
 
 clean:
-	@rm -rf $(GEN_PATH) $(BIN_PATH) $(SOURCE_PATH)/.antlr target/ tests/*/*.pdf *.dot *.pdf
+	@rm -rf $(GEN_PATH) $(BIN_PATH) $(SOURCE_PATH)/.antlr target/ tests/*/*.pdf *.dot *.pdf tests/*/*.ll

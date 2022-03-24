@@ -13,6 +13,10 @@ func main() {
 	// var add3 = 5
 	// add3 = add * add2
 
+	var add = 7
+	var x = 2;
+	var y = 2;
+	add = x + y
 	// ===== operations assign (+=, -=, *=, /=)
 	// var add1 = 0.0
 	// var add2 = 1.1
@@ -29,8 +33,8 @@ func main() {
 	// var o = true
 	// o = add  add2
 
-	var add1 = 10
-	var add2 = 2
+	// var add1 = 10
+	// var add2 = 2
 	// if add1 == add2 {
 	// 	var add3 = 3
 	// }
@@ -39,9 +43,9 @@ func main() {
 	// } 
 
 	
-	for add1 <= 15 {
-		add1 = add1 + 1
-	}
+	// for add1 <= 15 {
+	// 	add1 = add1 + 1
+	// }
 
 	//float
 	// var add = 3.3

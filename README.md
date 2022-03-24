@@ -14,15 +14,16 @@ Compile o código:
 make
 ```
 
-Para rodar um teste específico digite o comando `make run FILE=tests/[PASTA-DE-TESTES]/[ARQUIVO-DE-TESTES]` por exemplo:
+Para rodar um teste específico, deve se definir qual o modo de opeção é desejado. Caso queira um interpretardor, utilize `flag=-i`, porém caso queira um gerador de código utilize `flag=-c`. Feito isso, basta digitar o comando a seguir. `make run file=tests/[PASTA-DE-TESTES]/[ARQUIVO-DE-TESTES] flag=-[MODO-DE-OPERAÇÃO]` por exemplo:
 ```sh
-make run FILE=tests/no-errors/helloworld.go
+make run file=tests/no-errors/helloworld.go flag-c
 ```
+
 Para executar todos os testes por vez, basta executar o seguinte comando
 ```sh
 ./gen_tests.sh
 ```
-É válido resaltar que o script acima testa apenas a pasta com testes corretos. Para alterar a pasta de testes, basta mudar aterar a variável `FOLDER` para a pasta desejada.
+É válido resaltar que o script acima testa apenas a pasta com testes corretos. Para alterar a pasta de testes, basta mudar aterar a variável `folder` para a pasta desejada.
 
 Por fim, o comando `make clean` limpará todos os arquivos gerados pelo programa.
 
@@ -32,26 +33,3 @@ Por fim, o comando `make clean` limpará todos os arquivos gerados pelo programa
 MIT
 
 **Free Software, Hell Yeah!**
-
-
-
-
-Flags:
-  * `-c` (default)
-  * `-i`
-
-So to run the project would be
-```bash
-# Runs the Interpreter
-make run file=<file_path> flag=-i
-
-# Either one will run the CodeGen
-make run file=<file_path>
-make run file=<file_path> flag=-c
-```
-
-
-There is also the option to run on all files at once, but it will only run with the `-c` flag since the interpreter would cause interruptions when waiting for input
-```bash
-sh runall.sh
-```
