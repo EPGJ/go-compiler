@@ -11,9 +11,9 @@ import checker.SemanticChecker;
 
 import parser.GoLexer;
 import parser.GoParser;
-
 import code.Interpreter;
 import code.LLVMGenerator;
+
 
 public class Main {
 	public static void main(String[] args) throws IOException {
@@ -52,9 +52,7 @@ public class Main {
 			Interpreter interpreter = new Interpreter(checker.st, checker.vt, checker.ft);
 			interpreter.execute(checker.root);
 		} else {
-			// CodeGen codeGen = new CodeGen(checker.st, checker.vt);
-			// codeGen.execute(checker.root);
-			LLVMGenerator codeGen = new LLVMGenerator(checker.st, checker.vt);
+			LLVMGenerator codeGen = new LLVMGenerator(checker.st, checker.vt, checker.ft);
 			codeGen.execute(checker.root);
 		}
 

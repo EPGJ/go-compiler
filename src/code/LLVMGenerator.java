@@ -1,10 +1,13 @@
 package code;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Scanner;
 import java.util.Stack;
 
 import ast.AST;
 import ast.ASTBaseVisitor;
+import tables.FuncTable;
 import tables.StrTable;
 import tables.VarTable;
 import typing.Type;
@@ -27,15 +30,19 @@ public class LLVMGenerator extends ASTBaseVisitor<Integer>{
     private static int br = 0;
     private final StrTable st;
 	private final VarTable vt;
+	private final FuncTable ft;
+    private List<FunctionRef> functionRefs;
 
     static Stack<Integer> br_stack = new Stack<>();
 
 
-    public LLVMGenerator(StrTable st, VarTable vt) {
-		this.st = st;
-		this.vt = vt;
-	}
-
+    public LLVMGenerator(StrTable st, VarTable vt, FuncTable ft) {
+        this.st = st;
+        this.vt = vt;
+        this.ft = ft;
+        this.functionRefs = new ArrayList<FunctionRef>();
+    }
+		
     @Override 
     public void execute(AST root) {
         visit(root);
@@ -61,6 +68,14 @@ public class LLVMGenerator extends ASTBaseVisitor<Integer>{
         }
         main_text = sb.toString();
     }
+
+    // Helper method to find the function reference when the function is called
+	FunctionRef findFuncRef(String name) {
+		for (FunctionRef ref : functionRefs) {
+			if (ref.name == name) return ref;
+		}
+		return null;
+	}
 
     @Override
     protected Integer visitBoolVal(AST node) {
@@ -667,20 +682,9 @@ public class LLVMGenerator extends ASTBaseVisitor<Integer>{
 		Type varType = vt.getType(varIdx);
 
 		if (varType == Type.FLOAT32_TYPE) {
-			/*
-            %1 = alloca i32, align 4
-            %2 = alloca float, align 4
-            store i32 0, i32* %1, align 4
-            store float 1.000000e+00, float* %2, align 4
-            %3 = load float, float* %2, align 4
-            %4 = fadd float %3, 1.000000e+00
-            store float %4, float* %2, align 4
-            ret i32 0
-            */
+            /** */
 	    } else {
-			// buffer += "%" + reg++ + " = load i32, i32* %" + (varIdx +2) + ", align 4\n";
-            // buffer += "%" + reg++ + " = add nsw i32 %" + (reg-1) + ", 1";
-            // buffer += "store i32 %4, i32* %" + (varIdx +2) + ", align 4";
+            /** */
 	    }
         return null;
     }
@@ -695,28 +699,10 @@ public class LLVMGenerator extends ASTBaseVisitor<Integer>{
 		Type varType = vt.getType(varIdx);
 
 		if (varType == Type.FLOAT32_TYPE) {
-			/*
-            %1 = alloca i32, align 4
-            %2 = alloca float, align 4
-            store i32 0, i32* %1, align 4
-            store float 1.000000e+00, float* %2, align 4
-            %3 = load float, float* %2, align 4
-            %4 = fadd float %3, -1.000000e+00
-            store float %4, float* %2, align 4
-            ret i32 0
-            */
-	    } else {
-			/*
-            %1 = alloca i32, align 4
-            %2 = alloca i32, align 4
-            store i32 0, i32* %1, align 4
-            store i32 1, i32* %2, align 4
-            %3 = load i32, i32* %2, align 4
-            %4 = add nsw i32 %3, -1
-            store i32 %4, i32* %2, align 4
-            ret i32 0
-            */
-	    }
+            /** */
+        } else {
+            /** */
+	    } 
         return null;
     }
 
@@ -819,12 +805,33 @@ public class LLVMGenerator extends ASTBaseVisitor<Integer>{
 
     @Override
     protected Integer visitFuncDecl(AST node) {
+        AST argsNode = null;
+		AST stmtNode = null;
+
+		if (node.getChildren().size() == 1) {
+			// Func doenst have an arg list
+			stmtNode = node.getChild(0);
+		} else {
+			// Func has both arg list and stmt
+			argsNode = node.getChild(0);
+			stmtNode = node.getChild(1);
+		}
+
+		int funcIdx = node.intData;
+		String name = ft.getName(funcIdx);
+
+		// Creates a new function reference
+		FunctionRef funcRef = new FunctionRef(name, argsNode, stmtNode);
+		
+		// Saves the reference for future function calls
+		functionRefs.add(funcRef);
+
         return null;
     }
 
     @Override
     protected Integer visitFuncArgs(AST node) {
-        return null;
+		return null;
     }
 
     /*------------------------------------------------------------------------------*
@@ -841,7 +848,6 @@ public class LLVMGenerator extends ASTBaseVisitor<Integer>{
         // Visits the function list node
 		visit(node.getChild(0));
 
-		// End of program, no need to read from stdin anymore
 		return null; 
     }
 
@@ -857,16 +863,31 @@ public class LLVMGenerator extends ASTBaseVisitor<Integer>{
     protected Integer visitVarUse(AST node) {
         int varIdx = node.intData;
 		if (node.type == Type.FLOAT32_TYPE) {
-			/** code llvm*/
+			buffer += "  %" + reg++ + " = load float, float* %" + varIdx + ", align 4\n";
 		} else {
-			/** code llvm*/
+			buffer +=  "  %" + reg++ + " = load i32, i32* %" + varIdx + ", align 4\n";
 		}
 		return null; 
     }
     
+    // Helper class to save the statement section and arg list from each function
+	private class FunctionRef {
+		String name;
+		AST args;
+		AST statementSection;
+
+		public FunctionRef(String name, AST args, AST stmt) {
+			this.name = name;
+			this.args = args;
+			this.statementSection = stmt;
+		}
+	}
+
+
     /*------------------------------------------------------------------------------*
 	 *	Aux Functions
 	 *------------------------------------------------------------------------------*/
+    
     public String floatToLLVM(float f) {
 		return "0x" + toHexString(Double.doubleToRawLongBits((double) f));
 	}
