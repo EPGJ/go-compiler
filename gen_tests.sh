@@ -1,7 +1,7 @@
 #!/bin/bash
 
-folder=with-errors
+folder=no-errors
 
 for infile in `ls tests/$folder/*.go`; do
-    make runll file=$infile 
+    make runll file=$infile  flag=-c
 done
