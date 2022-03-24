@@ -39,7 +39,7 @@ run:
 	$(JAVA) $(CLASS_PATH_OPTION):$(BIN_PATH) Main $(file) $(flag) 
 
 runll: 
-	$(JAVA) $(CLASS_PATH_OPTION):$(BIN_PATH) Main $(file) $(flag) >> $(file).ll
+	$(JAVA) $(CLASS_PATH_OPTION):$(BIN_PATH) Main $(file) $(flag) > $(file).ll
 
 clean:
 	@rm -rf $(GEN_PATH) $(BIN_PATH) $(SOURCE_PATH)/.antlr target/ tests/*/*.pdf *.dot *.pdf tests/*/*.ll
